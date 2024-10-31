@@ -93,6 +93,10 @@
             h1 { font-size: 24px; }
             p, .button { font-size: 16px; }
         }
+        .highlight-warning {
+            color: #ffd700;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -100,13 +104,13 @@
         <img src="https://i.nuuls.com/THgTC.png" alt="Pumpkin" class="pumpkin">
         <!-- <img src="https://kino.strimki.top/apple-touch-icon.png" alt="Rooster" class="rooster"> -->
         <h1>Czat</h1>
-        <p>Otwórz czat Nowcia i umieść go w prawym górnym rogu i dopasuj (w tym okienku) i ustaw kamerę dla optymalnej pozycji.</p>
+        <p>Otwórz czat Nowcia i umieść go w prawym górnym rogu <span class="highlight-warning">(w tym okienku)</span> i ustaw kamerę dla optymalnej pozycji.</p>
         <button id="openChatBtn" class="button" onclick="openChatWindow()">
             <img src="https://kick.com/favicon.ico" alt="Kick Icon"> Upal czat
         </button>
     </div>
     <div class="notice" id="notice">
-        <p>Nie zamykaj okna czatu, aby z niego korzystać!</p>
+        <p>Aby korzystać z czatu, nie zamykaj jego okna.</p>
     </div>
 
     <script>
