@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Czat Nowciu - Kick Style</title>
+    <link rel="icon" href="https://kick.com/favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.8);
+            border: 2px solid #53fa16;
+            position: relative;
+        }
+        h1 {
+            font-size: 26px;
+            color: #53fa16;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #b3b3b3;
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .button {
+            background-color: #53fa16;
+            color: #0f0f0f;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0px 6px 20px rgba(83, 250, 22, 0.4);
+            display: inline-flex;
+            align-items: center;
+        }
+        .button:hover {
+            background-color: #46e514;
+            transform: scale(1.05);
+            box-shadow: 0px 8px 25px rgba(83, 250, 22, 0.6);
+        }
+        .button img {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+        .notice {
+            display: none;
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .notice p {
+            margin-bottom: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Czat Nowciu</h1>
+        <p>Otwórz czat i korzystaj z niego w nowym oknie:</p>
+        <button id="openChatBtn" class="button" onclick="openChatWindow()">
+            <img src="https://kick.com/favicon.ico" alt="Kick Icon"> Otwórz czat
+        </button>
+        <div class="notice" id="notice">
+            <p>Nie zamykaj okna czatu, aby z niego korzystać!</p>
+        </div>
+    </div>
+    <div class="footer">© 2024 Nowciu Chat. Wszystkie prawa zastrzeżone.</div>
+
+    <script>
+        function openChatWindow() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // Jeśli mobilne, przekieruj na inną stronę w tym samym oknie
+                window.location.href = 'https://chat-overlay.matinaniss.com/?channel=nowciu&sevenTVCosmeticsEnabled=true&sevenTVEmotesEnabled=true&theme=dark&textShadow=medium&textSize=medium&animation=none&showPinEnabled=true&textBackgroundEnabled=true&textBackgroundWidth=min';
+            } else {
+                // Jeśli desktop, otwórz czat w nowym oknie
+                const left = window.screen.width - 360;
+                const top = 0;
+                window.open('https://kick.com/nowciu/chatroom', '_blank', `width=340,height=600,left=${left},top=${top}`);
+                document.getElementById('notice').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
