@@ -85,8 +85,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Czat Dajmaxa</h1>
-        <p>Otwórz czat:</p>
+        <h1>Czat Nowciu</h1>
+        <p>Otwórz czat i korzystaj z niego w nowym oknie:</p>
         <button id="openChatBtn" class="button" onclick="openChatWindow()">
             <img src="https://kick.com/favicon.ico" alt="Kick Icon"> Otwórz czat
         </button>
@@ -94,7 +94,7 @@
             <p>Nie zamykaj okna czatu, aby z niego korzystać!</p>
         </div>
     </div>
-    <div class="footer">czat zostanie odpalony w nowym oknie ze wzgledu na ograniczenia API ze strony Kick. dopasuj go na stronie</div>
+    <div class="footer">© 2024 Nowciu Chat. Wszystkie prawa zastrzeżone.</div>
 
     <script>
         function openChatWindow() {
@@ -102,12 +102,12 @@
 
             if (isMobile) {
                 // Jeśli mobilne, przekieruj na inną stronę w tym samym oknie
-                window.location.href = 'https://chat-overlay.matinaniss.com/?channel=kurnik-industries&sevenTVCosmeticsEnabled=true&sevenTVEmotesEnabled=true&theme=dark&textShadow=medium&textSize=medium&animation=none&showPinEnabled=true&textBackgroundEnabled=true&textBackgroundWidth=min';
+                window.location.href = 'https://chat-overlay.matinaniss.com/?channel=nowciu&sevenTVCosmeticsEnabled=true&sevenTVEmotesEnabled=true&theme=dark&textShadow=medium&textSize=medium&animation=none&showPinEnabled=true&textBackgroundEnabled=true&textBackgroundWidth=min';
             } else {
                 // Jeśli desktop, otwórz czat w nowym oknie
                 const left = window.screen.width - 360;
                 const top = 0;
-                window.open('https://kick.com/popout/kurnik-industries/chat', '_blank', `width=340,height=600,left=${left},top=${top}`);
+                window.open('https://kick.com/popout/nowciu/chat', '_blank', `width=340,height=600,left=${left},top=${top}`);
                 document.getElementById('notice').style.display = 'block';
             }
         }
