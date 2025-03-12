@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kliper w stylu Twitch</title>
+    <style>
+        :root {
+            --twitch-purple: #9146FF;
+            --twitch-light-purple: #772ce8;
+            --dark-bg: #0e0e10;
+            --dark-secondary: #18181b;
+            --text-color: #efeff1;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .player-section {
+            margin-bottom: 20px;
+            background-color: var(--dark-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #videoPlayer {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: black;
+        }
+        
+        .clip-controls {
+            padding: 20px;
+            background-color: var(--dark-secondary);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .clip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .clip-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .clip-button {
+            background-color: var(--twitch-purple);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .clip-button:hover {
+            background-color: var(--twitch-light-purple);
+        }
+        
+        .clip-duration {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .duration-text {
+            font-size: 14px;
+            color: #adadb8;
+        }
+        
+        .timeline-container {
+            position: relative;
+            height: 60px;
+            margin: 20px 0;
+        }
+        
+        .timeline-bar {
+            position: relative;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 27px;
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.5);
+            width: 0;
+            border-radius: 3px;
+        }
+        
+        .timeline-selection {
+            position: absolute;
+            height: 100%;
+            background-color: var(--twitch-purple);
+            border-radius: 3px;
+        }
+        
+        .timeline-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            top: -5px;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+        
+        .timeline-handle.start {
+            left: 0;
+        }
+        
+        .timeline-handle.end {
+            left: 100%;
+        }
+        
+        .clip-time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        
+        .time-marker {
+            font-size: 12px;
+            color: #adadb8;
+        }
+        
+        .clip-settings {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .clip-title-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #2c2c35;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+        }
+        
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        .status-message.visible {
+            display: block;
+        }
+        
+        .status-message.success {
+            background-color: rgba(0, 200, 0, 0.1);
+        }
+        
+        .status-message.error {
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        
+        .recent-clips {
+            background-color: var(--dark-secondary);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .clips-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .clips-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .clip-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .clip-thumbnail {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #0e0e10;
+            position: relative;
+        }
+        
+        .clip-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .clip-duration-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+        
+        .clip-info {
+            padding: 10px;
+        }
+        
+        .clip-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .clip-date {
+            font-size: 12px;
+            color: #adadb8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="player-section">
+            <video id="videoPlayer" controls></video>
+        </div>
+        
+        <div class="clip-controls">
+            <div class="clip-header">
+                <div class="clip-title">Stwórz nowy klip</div>
+                <button id="createClipButton" class="clip-button">Utwórz klip</button>
+            </div>
+            
+            <div class="clip-duration">
+                <div class="duration-text">Długość klipu: <span id="clipLengthDisplay">30s</span></div>
+                <div class="duration-text">Max. długość: 120s</div>
+            </div>
+            
+            <div class="timeline-container">
+                <div class="timeline-bar">
+                    <div class="timeline-progress" id="timelineProgress"></div>
+                    <div class="timeline-selection" id="timelineSelection"></div>
+                    <div class="timeline-handle start" id="startHandle"></div>
+                    <div class="timeline-handle end" id="endHandle"></div>
+                </div>
+                
+                <div class="clip-time-display">
+                    <div class="time-marker" id="startTimeDisplay">00:00</div>
+                    <div class="time-marker" id="endTimeDisplay">00:30</div>
+                </div>
+            </div>
+            
+            <div class="clip-settings">
+                <input type="text" id="clipTitleInput" class="clip-title-input" placeholder="Tytuł klipu..." maxlength="100">
+            </div>
+            
+            <div id="statusMessage" class="status-message">Status operacji pojawi się tutaj</div>
+        </div>
+        
+        <div class="recent-clips">
+            <div class="clips-header">Twoje klipy</div>
+            <div class="clips-list" id="clipsContainer">
+                <!-- Klipy będą dodawane tutaj dynamicznie -->
+                <div class="clip-item hidden" id="clipTemplate">
+                    <div class="clip-thumbnail">
+                        <img src="/api/placeholder/320/180" alt="Podgląd klipu">
+                        <div class="clip-duration-badge">0:30</div>
+                    </div>
+                    <div class="clip-info">
+                        <div class="clip-name">Nazwa klipu</div>
+                        <div class="clip-date">12.03.2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementy interfejsu
+            const videoPlayer = document.getElementById('videoPlayer');
+            const createClipButton = document.getElementById('createClipButton');
+            const timelineProgress = document.getElementById('timelineProgress');
+            const timelineSelection = document.getElementById('timelineSelection');
+            const startHandle = document.getElementById('startHandle');
+            const endHandle = document.getElementById('endHandle');
+            const startTimeDisplay = document.getElementById('startTimeDisplay');
+            const endTimeDisplay = document.getElementById('endTimeDisplay');
+            const clipLengthDisplay = document.getElementById('clipLengthDisplay');
+            const clipTitleInput = document.getElementById('clipTitleInput');
+            const statusMessage = document.getElementById('statusMessage');
+            const clipsContainer = document.getElementById('clipsContainer');
+            const clipTemplate = document.getElementById('clipTemplate');
+            
+            // Konfiguracja strumienia
+            const streamUrl = 'https://132544.edgevideo.ru/streams/132544_814337/playlist.m3u8';
+            
+            // Inicjalizacja odtwarzacza HLS
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.play();
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = streamUrl;
+            }
+            
+            // Zmienne do nagrywania
+            let mediaRecorder;
+            let recordedChunks = [];
+            let recordingStream;
+            let recordingBuffer = [];
+            const MAX_BUFFER_LENGTH = 120; // 120 sekund bufora
+            
+            // Zmienne do selekcji klipu
+            let isDraggingStart = false;
+            let isDraggingEnd = false;
+            let clipStartTime = 0;
+            let clipEndTime = 30;
+            let timelineWidth;
+            
+            // Inicjalizacja bufora nagrywania
+            const initRecording = async () => {
+                try {
+                    recordingStream = videoPlayer.captureStream();
+                    mediaRecorder = new MediaRecorder(recordingStream, {
+                        mimeType: 'video/webm;codecs=vp9'
+                    });
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                            
+                            // Dodaj czas do bufora
+                            recordingBuffer.push({
+                                time: videoPlayer.currentTime,
+                                data: event.data
+                            });
+                            
+                            // Utrzymuj tylko ostatnie MAX_BUFFER_LENGTH sekund
+                            if (recordingBuffer.length > MAX_BUFFER_LENGTH) {
+                                recordingBuffer.shift();
+                            }
+                        }
+                    };
+                    
+                    mediaRecorder.start(1000); // Zapisuj co 1 sekundę
+                    console.log('Buforowanie rozpoczęte');
+                } catch (error) {
+                    showStatus('Błąd buforowania: ' + error.message, 'error');
+                    console.error('Błąd buforowania:', error);
+                }
+            };
+            
+            // Formatowanie czasu (sekundy -> mm:ss)
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+            
+            // Aktualizacja UI dla osi czasu
+            const updateTimelineUI = () => {
+                const duration = videoPlayer.duration || 0;
+                const currentTime = videoPlayer.currentTime || 0;
+                
+                // Aktualizacja paska postępu
+                const progressPercentage = (currentTime / duration) * 100;
+                timelineProgress.style.width = `${progressPercentage}%`;
+                
+                // Aktualizacja selekcji klipu
+                const selectionStartPercent = (clipStartTime / MAX_BUFFER_LENGTH) * 100;
+                const selectionEndPercent = (clipEndTime / MAX_BUFFER_LENGTH) * 100;
+                const selectionWidth = selectionEndPercent - selectionStartPercent;
+                
+                timelineSelection.style.left = `${selectionStartPercent}%`;
+                timelineSelection.style.width = `${selectionWidth}%`;
+                
+                startHandle.style.left = `${selectionStartPercent}%`;
+                endHandle.style.left = `${selectionEndPercent}%`;
+                
+                // Aktualizacja wyświetlania czasów
+                startTimeDisplay.textContent = formatTime(clipStartTime);
+                endTimeDisplay.textContent = formatTime(clipEndTime);
+                
+                // Aktualizacja długości klipu
+                const clipLength = clipEndTime - clipStartTime;
+                clipLengthDisplay.textContent = `${clipLength}s`;
+            };
+            
+            // Inicjalizacja przeciągania uchwytów
+            const initDragHandles = () => {
+                timelineWidth = document.querySelector('.timeline-bar').offsetWidth;
+                
+                // Obsługa uchwytu początkowego
+                startHandle.addEventListener('mousedown', (e) => {
+                    isDraggingStart = true;
+                    e.preventDefault();
+                });
+                
+                // Obsługa uchwytu końcowego
+                endHandle.addEventListener('mousedown', (e) => {
+                    isDraggingEnd = true;
+                    e.preventDefault();
+                });
+                
+                // Obsługa przeciągania
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDraggingStart && !isDraggingEnd) return;
+                    
+                    const timelineRect = document.querySelector('.timeline-bar').getBoundingClientRect();
+                    const relativeX = e.clientX - timelineRect.left;
+                    const percentage = Math.max(0, Math.min(100, (relativeX / timelineRect.width) * 100));
+                    const seconds = (percentage / 100) * MAX_BUFFER_LENGTH;
+                    
+                    if (isDraggingStart) {
+                        clipStartTime = Math.min(seconds, clipEndTime - 5);
+                    } else if (isDraggingEnd) {
+                        clipEndTime = Math.max(seconds, clipStartTime + 5);
+                        clipEndTime = Math.min(clipEndTime, MAX_BUFFER_LENGTH);
+                    }
+                    
+                    updateTimelineUI();
+                });
+                
+                // Zakończenie przeciągania
+                document.addEventListener('mouseup', () => {
+                    isDraggingStart = false;
+                    isDraggingEnd = false;
+                });
+                
+                // Aktualizacja szerokości osi czasu przy zmianie rozmiaru okna
+                window.addEventListener('resize', () => {
+                    timelineWidth = document.querySelector('.timeline-bar').offsetWidth;
+                    updateTimelineUI();
+                });
+            };
+            
+            // Pokazywanie statusu
+            const showStatus = (message, type = '') => {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message visible';
+                
+                if (type) {
+                    statusMessage.classList.add(type);
+                }
+                
+                setTimeout(() => {
+                    statusMessage.classList.remove('visible');
+                }, 5000);
+            };
+            
+            // Tworzenie klipu
+            const createClip = () => {
+                if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                    showStatus('Buforowanie nie jest aktywne', 'error');
+                    return;
+                }
+                
+                const clipTitle = clipTitleInput.value.trim() || 'Klip bez nazwy';
+                showStatus('Tworzenie klipu...', '');
+                
+                try {
+                    // Znajdź odpowiednie fragmenty nagrania
+                    const currentTime = videoPlayer.currentTime;
+                    const startTimeOffset = currentTime - clipStartTime;
+                    const endTimeOffset = currentTime - clipEndTime;
+                    
+                    // Znajdź indeksy fragmentów w buforze
+                    const filteredChunks = recordingBuffer.filter(item => {
+                        return item.time >= startTimeOffset && item.time <= currentTime;
+                    }).map(item => item.data);
+                    
+                    if (filteredChunks.length === 0) {
+                        showStatus('Brak danych do utworzenia klipu', 'error');
+                        return;
+                    }
+                    
+                    // Utwórz plik z fragmentów
+                    const clipBlob = new Blob(filteredChunks, { type: 'video/webm' });
+                    const clipUrl = URL.createObjectURL(clipBlob);
+                    
+                    // Utwórz element pobierania
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = clipUrl;
+                    downloadLink.download = `${clipTitle.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.webm`;
+                    downloadLink.click();
+                    
+                    // Dodaj klip do listy
+                    addClipToList(clipTitle, clipUrl, clipEndTime - clipStartTime);
+                    
+                    showStatus('Klip utworzony pomyślnie!', 'success');
+                } catch (error) {
+                    showStatus('Błąd podczas tworzenia klipu: ' + error.message, 'error');
+                    console.error('Błąd tworzenia klipu:', error);
+                }
+            };
+            
+            // Dodawanie klipu do listy
+            const addClipToList = (title, url, duration) => {
+                const clipItem = clipTemplate.cloneNode(true);
+                clipItem.id = '';
+                clipItem.classList.remove('hidden');
+                
+                const now = new Date();
+                const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`;
+                
+                clipItem.querySelector('.clip-name').textContent = title;
+                clipItem.querySelector('.clip-date').textContent = dateStr;
+                clipItem.querySelector('.clip-duration-badge').textContent = formatTime(duration);
+                
+                // Klip można odtworzyć po kliknięciu
+                clipItem.addEventListener('click', () => {
+                    videoPlayer.pause();
+                    videoPlayer.src = url;
+                    videoPlayer.play();
+                });
+                
+                clipsContainer.appendChild(clipItem);
+            };
+            
+            // Inicjalizacja po załadowaniu wideo
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                // Ustawienie domyślnego zakresu klipu
+                clipStartTime = 0;
+                clipEndTime = 30;
+                updateTimelineUI();
+                
+                // Inicjalizacja przeciągania uchwytów
+                initDragHandles();
+                
+                // Inicjalizacja buforowania
+                if (!mediaRecorder) {
+                    initRecording();
+                }
+            });
+            
+            // Aktualizacja UI podczas odtwarzania
+            videoPlayer.addEventListener('timeupdate', updateTimelineUI);
+            
+            // Obsługa przycisku tworzenia klipu
+            createClipButton.addEventListener('click', createClip);
+        });
+    </script>
+    
+    <?php
+    // W razie potrzeby można dodać obsługę po stronie serwera
+    ?>
+</body>
+</html>
