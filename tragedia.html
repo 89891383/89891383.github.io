@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tragiczne wieści. Nie żyje streamer "Piszczała" - GORZÓW INFO 2026</title>
+    <style>
+        /* Stylizacje globalne (Nowoczesny design 2026) */
+        :root {
+            --primary: #e63946;
+            --bg-color: #f8f9fa;
+            --text-main: #1d3557;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Nagłówek i Logo */
+        header {
+            background-color: #0b090a;
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* Kontener główny */
+        main {
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* Nagłówek artykułu */
+        .category {
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            line-height: 1.2;
+            margin: 0 0 20px 0;
+            color: #000;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .author-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #457b9d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #000;
+            margin: 0;
+        }
+
+        .author-role {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .article-date {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Treść artykułu */
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #343a40;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .quote-block {
+            border-left: 5px solid var(--primary);
+            padding: 15px 20px;
+            background: #f8d7da;
+            color: #721c24;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+
+        .friend-highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Obrazki i Galeria */
+        .main-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            max-height: 500px;
+        }
+
+        .image-caption {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .gallery img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Przyciski interakcji */
+        .engagement-bar {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-like {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+        .btn-like:hover { background-color: #d2e3fc; }
+
+        .btn-share {
+            background-color: #f1f3f4;
+            color: #3c4043;
+        }
+        .btn-share:hover { background-color: #e8eaed; }
+
+        /* Komentarze */
+        .comments-section {
+            margin-top: 50px;
+        }
+
+        .comments-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comment-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comment-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .comment-text {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .comment-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        .comment-actions span:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            main { margin: 15px; padding: 20px; }
+            h1 { font-size: 1.8rem; }
+            .gallery { grid-template-columns: 1fr; }
+            .engagement-bar { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <span class="logo-icon">Gorzów</span> NEWS 24
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <span class="category">Wydarzenia lokalne</span>
+            <h1>Tragiczny finał akcji ratunkowej nad jeziorem. Nie żyje streamer "Piszczała"</h1>
+
+            <div class="author-info">
+                <div class="author-details">
+                    <div class="author-avatar">AW</div>
+                    <div>
+                        <p class="author-name">Adam Więcek - Łowca faktów</p>
+                        <p class="author-role">Dział kryminalny i społeczny</p>
+                    </div>
+                </div>
+                <div class="article-date">Aktualizacja: 10 Sierpnia 2026, 23:25</div>
+            </div>
+
+            <img src="https://media.discordapp.net/attachments/1520814429749641226/1533159733891043328/image.png?ex=6a7b5745&is=6a7a05c5&hm=fbac9a303bdf308caf0fbdb5547ac5ba2c2f521ea58be8b9c587d41969c16a62&=&format=webp&quality=lossless&width=768&height=761" alt="Streamer Piszczała" class="main-image">
+            <div class="image-caption">Fot. Archiwum prywatne / Kanał zmarłego twórcy</div>
+
+            <p class="lead">Zaczęło się od rutynowego popołudnia nad wodą, a skończyło niewyobrażalnym dramatem. Po kilkudniowej walce w szpitalu odeszła od nas postać doskonale znana internautom w całej Polsce. Dla wielu widzów był to po prostu <span class="friend-highlight">nasz Gorzowski Przyjaciel</span>.</p>
+
+            <p>Wszystko wydarzyło się w niedzielne popołudnie 2 sierpnia po godz. 16 nad jeziorem Karnin w gminie Deszczno. Służby otrzymały dramatyczne zgłoszenie o topieniu się mężczyzny. Na miejsce zostały natychmiast wysłane dwa zastępy straży pożarnej, policja, pogotowie ratunkowe oraz zadysponowano śmigłowiec Lotniczego Pogotowia Ratunkowego (LPR).</p>
+
+            <div class="quote-block">
+                Mężczyzna w wieku 35-40 lat został wyciągnięty nieprzytomny z wody. Następnie przystąpiono do jego reanimacji. Mężczyzna był reanimowany. Na szczęście udało się przywrócić czynności życiowe. Został przetransportowany do szpitala. Będziemy ustalać jego tożsamość oraz okoliczności zdarzenia – informowała tuż po zdarzeniu Agnieszka Wiśniewska z Komendy Miejskiej Policji w Gorzowie.
+            </div>
+
+            <p>Niestety, pomimo początkowego przywrócenia akcji serca i heroicznej walki lekarzy z gorzowskiego szpitala specjalistycznego, organizm okazał się zbyt wycieńczony. Dzisiaj wieczorem do redakcji dotarła najsmutniejsza wiadomość. Mężczyzna zmarł, nie odzyskawszy pełnej przytomności.</p>
+
+            <p>Policja potwierdziła jego tożsamość. Społeczność internetowa natychmiast pogrążyła się w żałobie – zmarły to popularny twórca platform streamingowych, funkcjonujący pod pseudonimem <strong>"Piszczała"</strong>. Widzowie uwielbiali go za poczucie humoru, specyficzny styl i nieskończoną energię.</p>
+
+            <div class="gallery">
+                <img src="https://clips.kick.com/clips/58/clip_01KYT5S85XVK96T9VAZD0JQFB7/thumbnail.webp" alt="Kadr z transmisji Piszczały 1">
+                <img src="https://clips.kick.com/clips/11/clip_01KYT72DTFTGPRP7EXTWHJPTV4/thumbnail.webp" alt="Kadr z transmisji Piszczały 2">
+            </div>
+
+            <p>Internet już teraz zalewa fala wspomnień, a fani wspominają m.in. jego legendarne występy na kanałach zaprzyjaźnionych streamerów. Rodzinie i bliskim składamy najszczersze kondolencje.</p>
+
+            <div class="engagement-bar">
+                <button class="btn btn-like">
+                    👍 Polub to (4.2 tys.)
+                </button>
+                <button class="btn btn-share">
+                    🔗 Udostępnij artykuł (842)
+                </button>
+            </div>
+        </article>
+
+        <section class="comments-section">
+            <div class="comments-header">💬 Komentarze czytelników (156)</div>
+
+            <div class="comment-box">
+                <div class="comment-top">
+                    <span class="comment-author">Dawid_K</span>
+                    <span class="comment-time">12 minut temu</span>
+                </div>
+                <div class="comment-text">
+                    Totalny szok... Znałem go ze streamów mineda, zawsze rozwalał system swoim humorem i tym specyficznym śmiechem. Nie dociera to do mnie. Wielka strata dla polskiego internetu. Spoczywaj w pokoju Piszczała [*]
+                </div>
+                <div class="comment-actions">
+                    <span>👍 Odpowiedz (32)</span> <span>🚩 Zgłoś</span>
+                </div>
+            </div>
+
+            <div class="comment-box">
+                <div class="comment-top">
+                    <span class="comment-author">Gorzowianka_88</span>
+                    <span class="comment-time">28 minut temu</span>
+                </div>
+                <div class="comment-text">
+                    Jezu, widziałam tę akcję helikoptera LPR nad Karninem w tamtą niedzielę... Straszna tragedia. Nasz gorzowski przyjaciel z internetu, jeszcze niedawno mijałam go koło galerii. Wyrazy współczucia dla rodziny. Woda nie wybacza błędów.
+                </div>
+                <div class="comment-actions">
+                    <span>👍 Odpowiedz (15)</span> <span>🚩 Zgłoś</span>
+                </div>
+            </div>
+
+            <div class="comment-box">
+                <div class="comment-top">
+                    <span class="comment-author">Mined_Fanboy</span>
+                    <span class="comment-time">45 minut temu</span>
+                </div>
+                <div class="comment-text">
+                    Nigdy nie zapomnę tych nocnych transmisji jak wbijał do mineda na stream. Tworzyli niesamowity duet. Nie wyobrażam sobie teraz oglądać tego samego bez niego. Trzymajcie się tam wszyscy, co go oglądali... [*]
+                </div>
+                <div class="comment-actions">
+                    <span>👍 Odpowiedz (89)</span> <span>🚩 Zgłoś</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Prosty skrypt do animacji przycisków
+        document.querySelector('.btn-like').addEventListener('click', function() {
+            this.style.backgroundColor = '#1a73e8';
+            this.style.color = '#fff';
+            this.innerHTML = '✓ Polubiono (4.2 tys.)';
+        });
+    </script>
+</body>
+</html>
