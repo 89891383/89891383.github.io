@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Emote Wall</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+.emote-container{position:fixed;left:50%;bottom:48px;transform:translateX(-50%);flex-direction:row;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;gap:20px;z-index:2;pointer-events:none}
+.emote-combo,.emote-container{align-items:center;display:flex}
+.emote-combo{flex-direction:column;margin-left:6px;margin-right:6px;position:relative;transition:transform .5s ease}
+.emote{height:50px;transition:transform .3s ease;width:50px}
+.combo-text{color:#fff;font-size:26px;font-weight:700;letter-spacing:1px;position:absolute;text-align:center;text-shadow:0 0 2px #000,0 1px 2px #000;top:36px;transition:transform .3s ease,font-size .3s ease}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="emote-container" id="emoteContainer"></div>
+<script>
+(()=>{
+const Q=new URLSearchParams(location.search);
+const CH=(Q.get('channel')||Q.get('kick')||'').replace(/^@/,'').toLowerCase();
+const PUSHER='wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false';
+const ANIMS=['bounce','rotation','fireworks','rain'];
+function clamp(v,a,b,d){v=parseInt(v,10);return isNaN(v)?d:Math.min(b,Math.max(a,v))}
+const cfg={
+  anim:Q.get('animation')||'random',
+  dur:Math.min(4,Math.max(.5,parseFloat(Q.get('durationMultiplier')||'1')||1)),
+  chat:Q.get('disableOnChat')!=='true',
+  extra:Q.get('extraEmotes')!=='false',
+  onSub:Q.get('explosionOnSub')!=='false',
+  onFollow:Q.get('explosionOnFollow')==='true',
+  onRaid:Q.get('explosionOnRaid')==='true'||Q.get('explosionOnHost')==='true',
+  maxEmotes:clamp(Q.get('maxEmotes'),1,10,1),
+  minCombo:clamp(Q.get('minCombo'),2,50,2),
+  maxTimeout:1000*clamp(Q.get('maxTimeout'),10,60,30)
+};
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const box=document.getElementById('emoteContainer');
+const parts=[],cache=new Map(),fail=new Set(),pool=[],byName=new Map();
+const counts={},nodes={};
+let budget=0,tier='medium',ws,ping,re;
+function sz(){cv.width=innerWidth;cv.height=innerHeight}
+addEventListener('resize',sz);sz();
+(function(){let n=0,t=performance.now();(function f(){n++;performance.now()-t<1000?requestAnimationFrame(f):tier=n<30?'low':n<50?'medium':'high'})()})();
+function img(src){
+  if(!src||fail.has(src))return Promise.reject();
+  if(cache.has(src))return Promise.resolve(cache.get(src));
+  return new Promise((ok,no)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>{cache.set(src,i);ok(i)};i.onerror=()=>{fail.add(src);no()};i.src=src});
+}
+function kickUrl(id){return 'https://files.kick.com/emotes/'+id+'/fullsize'}
+function remember(n,u){if(!n||!u)return;const k=String(n).toLowerCase();if(!byName.has(k)){byName.set(k,u);pool.push(u)}}
+function pickAnim(f){if(f&&ANIMS.includes(f))return f;if(cfg.anim!=='random'&&ANIMS.includes(cfg.anim))return cfg.anim;return ANIMS[Math.floor(Math.random()*4)]}
+function nExpl(){let n={low:5,medium:10,high:20}[tier]||10;if(tier==='low')n=Math.round(n/2);else if(tier==='medium')n=Math.round(n*.75);return Math.max(3,n)}
+async function spawn(x,y,src,force){
+  if(budget>=100)return;budget++;setTimeout(()=>budget--,1000);
+  let im;try{im=await img(src);if(!im.complete)await new Promise(r=>im.onload=r)}catch{return}
+  const mx=Math.min(innerHeight/10,64);
+  let w=Math.floor(Math.random()*mx+20),h=Math.floor(w*(im.naturalHeight/im.naturalWidth));
+  if(im.naturalWidth>im.naturalHeight){h=w;w=Math.floor(h*(im.naturalWidth/im.naturalHeight))}
+  const type=pickAnim(force),now=Date.now(),mul=cfg.dur;
+  if(type==='rotation')parts.push({type,img:im,x,y,width:w,height:h,destX:x+300*(Math.random()-.5),destY:y+300*(Math.random()-.5),rotation:520*Math.random(),start:now,duration:1000*Math.random()+5000*mul});
+  else if(type==='bounce')parts.push({type,img:im,x,y,width:w,height:h,vx:8*(Math.random()-.5),vy:8*(Math.random()-.5),ax:0,ay:0,start:now,duration:4000*Math.random()+4000*mul});
+  else if(type==='fireworks'){for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,d=100+150*Math.random();parts.push({type,img:im,x,y,width:w,height:h,dx:Math.cos(a)*d,dy:Math.sin(a)*d,start:now,duration:1200})}}
+  else{const depth=Math.random(),ww=w*(.7+.6*depth),hh=h*(.7+.6*depth),vy=6+10*depth;parts.push({type:'rain',img:im,x:Math.random()*(innerWidth-ww),y:-hh,width:ww,height:hh,vy,sway:(Math.random()-.5)*(depth<.5?1:2),swaySpeed:.008+.012*Math.random(),swayPhase:Math.random()*Math.PI*2,rotation:10*(Math.random()-.5),depth,start:now,duration:(innerHeight+hh)/vy*16,fadeOut:.15+.1*Math.random()})}
+}
+function burst(src){return spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),src,'fireworks')}
+async function explode(list){
+  list=(list&&list.length?list:pool).filter(Boolean);if(!list.length)return;
+  const n=nExpl(),u=[];
+  while(u.length<n){const p=list[Math.floor(Math.random()*list.length)];if(!u.includes(p)||u.length>=list.length)u.push(p);if(u.length>80)break}
+  const wait=tier==='low'?0:tier==='medium'?1500:750,half=Math.round(u.length/2);
+  for(let i=0;i<half;i++)burst(u[i]);
+  if(tier==='low')return;await new Promise(r=>setTimeout(r,wait));
+  for(let i=half;i<u.length;i++)burst(u[i]);
+}
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const now=Date.now();
+  for(let i=parts.length-1;i>=0;i--)if(now-parts[i].start>=parts[i].duration)parts.splice(i,1);
+  for(const p of parts){
+    const t=(now-p.start)/p.duration;let x=p.x,y=p.y,s=1,a=1,r=0;
+    if(p.type==='fireworks'){x=p.x+p.dx*t;y=p.y+p.dy*t;s=1-.5*t;a=1-t}
+    else if(p.type==='bounce'){p.vx+=p.ax;p.vy+=p.ay;p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cv.width-p.width)p.vx*=-1;if(p.y<0||p.y>cv.height-p.height)p.vy*=-1;x=p.x;y=p.y;a=1-t}
+    else if(p.type==='rotation'){x=p.x+(p.destX-p.x)*t;y=p.y+(p.destY-p.y)*t;r=p.rotation*t;a=1-t}
+    else{const e=now-p.start;y=p.y+p.vy*e/16;x=p.x+32*Math.sin(p.swayPhase+e*p.swaySpeed)*p.sway;r=p.rotation*Math.sin(p.swayPhase+e*p.swaySpeed*.7);a=t>1-p.fadeOut?1-(t-(1-p.fadeOut))/p.fadeOut:.85+.15*p.depth;s=1+.2*(1-p.depth)}
+    ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,a));ctx.translate(x+p.width/2,y+p.height/2);if(r)ctx.rotate(r*Math.PI/180);ctx.drawImage(p.img,-p.width/2,-p.height/2,p.width*s,p.height*s);ctx.restore();
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+function pop(el){el.style.transform='scale(1.2)';setTimeout(()=>el.style.transform='scale(1)',200)}
+function dropCombo(url){
+  const n=nodes[url];if(!n)return;
+  if(n.emoteCombo.parentNode)box.removeChild(n.emoteCombo);
+  delete counts[url];delete nodes[url];
+}
+function layout(){
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,cfg.maxEmotes);
+  for(const n of Object.values(nodes))n.emoteCombo.style.display='none';
+  for(const [u] of top)box.appendChild(nodes[u].emoteCombo);
+  for(const [u] of top){if(counts[u]<cfg.minCombo)continue;nodes[u].emoteCombo.style.display='flex'}
+}
+function bump(url){
+  if(!url)return;
+  if(!counts[url]){
+    counts[url]=0;
+    const wrap=document.createElement('div');wrap.className='emote-combo';wrap.style.display='none';
+    const im=document.createElement('img');im.className='emote';
+    const tx=document.createElement('span');tx.className='combo-text';tx.textContent='x0';
+    wrap.append(im,tx);
+    nodes[url]={emoteCombo:wrap,emoteImg:im,comboText:tx,deleteTimeout:null,visible:false};
+  }
+  const n=nodes[url];counts[url]++;n.comboText.textContent='x'+counts[url];
+  if(!n.visible&&counts[url]>=cfg.minCombo){
+    n.emoteCombo.style.display='none';
+    n.emoteImg.src=url;
+    n.emoteImg.onload=()=>{n.visible=true;n.emoteCombo.style.display='flex';layout();if(!n.deleteTimeout)n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout)};
+    n.emoteImg.onerror=()=>dropCombo(url);
+  }
+  if(n.visible){clearTimeout(n.deleteTimeout);n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout);pop(n.emoteImg);pop(n.comboText)}
+  layout();
+}
+function parseKick(text){
+  const urls=[],re=/\[emote:(\d+):([^\]]+)\]/g;let m;
+  while((m=re.exec(text))){const u=kickUrl(m[1]);remember(m[2],u);urls.push(u);bump(u)}
+  const seen=new Set(urls);
+  for(const w of String(text||'').split(/\s+/)){
+    const raw=w.replace(/^[^\w:]+|[^\w]+$/g,'');if(!raw)continue;
+    const u=byName.get(raw.toLowerCase());
+    if(u&&!seen.has(u)){seen.add(u);urls.push(u);bump(u)}
+  }
+  return urls;
+}
+function onChat(text){
+  const urls=parseKick(text);
+  if(!cfg.chat)return;
+  for(const u of urls)spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),u);
+}
+async function j(url){const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw 0;return r.json()}
+function walkEmotes(node){
+  if(!node)return;
+  if(Array.isArray(node)){node.forEach(walkEmotes);return}
+  if(typeof node!=='object')return;
+  const id=node.id||node.emote_id,name=node.name||node.code;
+  if(id&&name&&/^\d+$/.test(String(id)))remember(name,kickUrl(id));
+  if(node.emotes)walkEmotes(node.emotes);
+  if(node.subscribers)walkEmotes(node.subscribers);
+  if(node.subscriber_emotes)walkEmotes(node.subscriber_emotes);
+}
+async function third(slug,uid){
+  const tries=[];if(uid)tries.push('https://7tv.io/v3/users/kick/'+uid);tries.push('https://7tv.io/v3/users/kick/'+encodeURIComponent(slug));
+  for(const url of tries){
+    try{
+      const d=await j(url),sets=[];if(d.emote_set)sets.push(d.emote_set);if(d.emote_sets)sets.push(...d.emote_sets);
+      for(const set of sets)for(const e of set.emotes||[]){
+        const files=e.data&&e.data.host&&e.data.host.files||[];
+        const f=[...files].reverse().find(x=>/2x|3x|1x/.test(x.name||''))||files[0];
+        const host=e.data&&e.data.host&&e.data.host.url;
+        if(host&&f)remember(e.name,'https:'+host+'/'+f.name);
+      }
+      break;
+    }catch{}
+  }
+  try{const g=await j('https://7tv.io/v3/emote-sets/global');for(const e of g.emotes||[]){const files=e.data&&e.data.host&&e.data.host.files||[];const f=files.find(x=>/2x|3x/.test(x.name||''))||files[0];const host=e.data&&e.data.host&&e.data.host.url;if(host&&f)remember(e.name,'https:'+host+'/'+f.name)}}catch{}
+  try{const b=await j('https://api.betterttv.net/3/cached/users/kick/'+encodeURIComponent(slug));for(const e of [].concat(b.channelEmotes||[],b.sharedEmotes||[]))remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x')}catch{}
+  try{const g=await j('https://api.betterttv.net/3/cached/emotes/global');for(const e of g||[])remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x')}catch{}
+}
+async function loadCh(slug){
+  let data=null;
+  for(const u of ['https://kick.com/api/v2/channels/','https://kick.com/api/v1/channels/']){
+    try{data=await j(u+encodeURIComponent(slug));break}catch{}
+  }
+  if(!data)throw 0;
+  walkEmotes(data);
+  try{walkEmotes(await j('https://kick.com/emotes/'+encodeURIComponent(slug)))}catch{}
+  const chatroomId=Q.get('chatroomId')||(data.chatroom&&data.chatroom.id)||data.chatroom_id;
+  const channelId=Q.get('channelId')||data.id||(data.user&&data.user.id);
+  const userId=data.user_id||(data.user&&data.user.id)||data.id;
+  if(cfg.extra)await third(slug,userId);
+  return {chatroomId,channelId};
+}
+function send(s,ev,d){if(s.readyState===1)s.send(JSON.stringify({event:ev,data:d}))}
+function sock(room,chan){
+  if(ws)try{ws.close()}catch{}
+  clearInterval(ping);clearTimeout(re);
+  ws=new WebSocket(PUSHER);
+  ws.onclose=()=>{re=setTimeout(()=>sock(room,chan),2000+Math.random()*2000)};
+  ws.onmessage=e=>{
+    let f;try{f=JSON.parse(e.data)}catch{return}
+    const ev=f.event||'';
+    if(ev==='pusher:connection_established'){
+      send(ws,'pusher:subscribe',{auth:'',channel:'chatrooms.'+room+'.v2'});
+      if(chan){send(ws,'pusher:subscribe',{auth:'',channel:'channel.'+chan});send(ws,'pusher:subscribe',{auth:'',channel:'channel_'+chan})}
+      clearInterval(ping);ping=setInterval(()=>send(ws,'pusher:ping',{}),30000);return;
+    }
+    if(ev==='pusher:ping'){send(ws,'pusher:pong',{});return}
+    let d=f.data;if(typeof d==='string')try{d=JSON.parse(d)}catch{d={}}
+    const s=ev.replace(/^App\\Events\\/,'');
+    if(s==='ChatMessageEvent'||s==='ChatMessageSentEvent')onChat(d.content||d.message||'');
+    else if(/Subscription|GiftedSubscription|LuckyUsersWhoGotGift/i.test(s)){if(cfg.onSub)explode(pool)}
+    else if(/Follow/i.test(s)){if(cfg.onFollow)explode(pool)}
+    else if(/Host|Raid/i.test(s)){if(cfg.onRaid)explode(pool)}
+  };
+}
+if(CH)loadCh(CH).then(i=>{if(i.chatroomId)sock(i.chatroomId,i.channelId)}).catch(()=>{});
+})();
+</script>
+</body>
+</html>
