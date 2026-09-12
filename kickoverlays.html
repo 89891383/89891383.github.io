@@ -1,49 +1,225 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Emote Wall</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;user-select:none}
-html,body{width:100%;height:100%;overflow:hidden;background:transparent}
+:root{--bg:#0c0e14;--card:#141822;--line:#262c3a;--txt:#eef2f8;--mut:#8b93a7;--acc:#53fc18;--acc2:#3dbe10}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:Inter,system-ui,Segoe UI,sans-serif}
+body{background:transparent;color:var(--txt);overflow:hidden}
+body.setup{background:radial-gradient(900px 500px at 0% 0%,rgba(83,252,24,.08),transparent 50%),radial-gradient(800px 400px at 100% 100%,rgba(70,90,200,.1),transparent 45%),var(--bg);overflow:auto}
 canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
 .emote-container{position:fixed;left:50%;bottom:48px;transform:translateX(-50%);flex-direction:row;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;gap:20px;z-index:2;pointer-events:none}
 .emote-combo,.emote-container{align-items:center;display:flex}
 .emote-combo{flex-direction:column;margin-left:6px;margin-right:6px;position:relative;transition:transform .5s ease}
-.emote{height:50px;transition:transform .3s ease;width:50px}
+.emote{height:50px;width:50px;transition:transform .3s ease}
 .combo-text{color:#fff;font-size:26px;font-weight:700;letter-spacing:1px;position:absolute;text-align:center;text-shadow:0 0 2px #000,0 1px 2px #000;top:36px;transition:transform .3s ease,font-size .3s ease}
+#ui{display:none;position:relative;z-index:10;max-width:880px;margin:32px auto;padding:0 16px 48px}
+body.setup #ui{display:block}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--acc);color:#111;font-weight:800;display:grid;place-items:center}
+h1{font-size:22px;letter-spacing:-.02em}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:12px}
+label.l{display:block;font-size:12px;color:var(--mut);margin:10px 0 6px}
+input[type=text],input[type=number],select{width:100%;background:#0d1018;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px 11px;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--acc)}
+.chk{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;color:#d5dbe8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer;font:inherit}
+.p{background:var(--acc);color:#111}
+.g{background:#1b2130;color:#fff;border:1px solid var(--line)}
+.urlbox{margin-top:12px;background:#0d1018;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12px;color:#b8c0d0;word-break:break-all;line-height:1.45}
+.status{margin-top:10px;font-size:12px;color:var(--mut)}
+.status.on{color:var(--acc)}
+.status.off{color:#ff6b6b}
+.hint{margin-top:8px;font-size:12px;color:var(--mut);line-height:1.45}
 </style>
 </head>
-<body>
+<body class="setup">
 <canvas id="c"></canvas>
 <div class="emote-container" id="emoteContainer"></div>
+<div id="ui">
+  <div class="top">
+    <div class="logo">E</div>
+    <div>
+      <h1>Emote Wall</h1>
+      <div class="sub">Overlay + combo z czatu Kick. Ustaw i wrzuć URL do OBS.</div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Kanał</h2>
+      <label class="l">Nick Kick</label>
+      <input id="channel" type="text" placeholder="np. xqc" autocomplete="off">
+      <label class="l">Chatroom ID (opcjonalnie, gdy API nie działa)</label>
+      <input id="chatroomId" type="text" placeholder="zostaw puste">
+      <p class="hint">W OBS: Browser Source, 1920×1080, przezroczyste tło.</p>
+    </div>
+    <div class="card">
+      <h2>Emote wall</h2>
+      <label class="l">Animacja</label>
+      <select id="animation">
+        <option value="random">losowa</option>
+        <option value="rain">rain</option>
+        <option value="bounce">bounce</option>
+        <option value="rotation">rotation</option>
+        <option value="fireworks">fireworks</option>
+      </select>
+      <div class="row2">
+        <div>
+          <label class="l">Czas trwania ×</label>
+          <input id="durationMultiplier" type="number" min="0.5" max="4" step="0.1" value="1">
+        </div>
+        <div>
+          <label class="l" style="opacity:0">.</label>
+          <label class="chk"><input id="disableOnChat" type="checkbox"> tylko eventy, bez czatu</label>
+        </div>
+      </div>
+      <label class="chk"><input id="extraEmotes" type="checkbox" checked> 7TV / BTTV</label>
+      <label class="chk"><input id="explosionOnSub" type="checkbox" checked> wybuch na sub / gift</label>
+      <label class="chk"><input id="explosionOnFollow" type="checkbox"> wybuch na follow</label>
+      <label class="chk"><input id="explosionOnRaid" type="checkbox"> wybuch na host / raid</label>
+    </div>
+    <div class="card">
+      <h2>Combo</h2>
+      <div class="row2">
+        <div>
+          <label class="l">min. combo</label>
+          <input id="minCombo" type="number" min="2" max="50" value="2">
+        </div>
+        <div>
+          <label class="l">ile emotek na ekranie</label>
+          <input id="maxEmotes" type="number" min="1" max="10" value="1">
+        </div>
+      </div>
+      <label class="l">timeout (s)</label>
+      <input id="maxTimeout" type="number" min="10" max="60" value="30">
+      <p class="hint">Combo pokazuje się na dole, Impact + xN, scale 1.2 przy biciu.</p>
+    </div>
+    <div class="card">
+      <h2>OBS</h2>
+      <div class="btns">
+        <button class="p" id="startBtn">Uruchom podgląd</button>
+        <button class="g" id="copyBtn">Kopiuj URL</button>
+        <button class="g" id="testBtn">Test wall</button>
+        <button class="g" id="testComboBtn">Test combo</button>
+      </div>
+      <div class="urlbox" id="urlBox">ustaw nick</div>
+      <div class="status" id="st">oczekiwanie</div>
+    </div>
+  </div>
+</div>
 <script>
 (()=>{
+const $=id=>document.getElementById(id);
 const Q=new URLSearchParams(location.search);
-const CH=(Q.get('channel')||Q.get('kick')||'').replace(/^@/,'').toLowerCase();
-const PUSHER='wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false';
+const overlayMode=Q.get('obs')==='1'||Q.get('overlay')==='1'||(Q.get('channel')&&Q.get('hud')==='0');
 const ANIMS=['bounce','rotation','fireworks','rain'];
+const PUSHER='wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false';
 function clamp(v,a,b,d){v=parseInt(v,10);return isNaN(v)?d:Math.min(b,Math.max(a,v))}
-const cfg={
-  anim:Q.get('animation')||'random',
-  dur:Math.min(4,Math.max(.5,parseFloat(Q.get('durationMultiplier')||'1')||1)),
-  chat:Q.get('disableOnChat')!=='true',
-  extra:Q.get('extraEmotes')!=='false',
-  onSub:Q.get('explosionOnSub')!=='false',
-  onFollow:Q.get('explosionOnFollow')==='true',
-  onRaid:Q.get('explosionOnRaid')==='true'||Q.get('explosionOnHost')==='true',
-  maxEmotes:clamp(Q.get('maxEmotes'),1,10,1),
+function num(v,a,b,d){v=parseFloat(v);return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d}
+
+const FIELDS=['channel','chatroomId','animation','durationMultiplier','minCombo','maxEmotes','maxTimeout'];
+const CHECKS=['disableOnChat','extraEmotes','explosionOnSub','explosionOnFollow','explosionOnRaid'];
+
+function readForm(){
+  const c={
+    channel:($('channel').value||'').trim().replace(/^@/,'').toLowerCase(),
+    chatroomId:$('chatroomId').value.trim(),
+    animation:$('animation').value,
+    durationMultiplier:num($('durationMultiplier').value,.5,4,1),
+    disableOnChat:$('disableOnChat').checked,
+    extraEmotes:$('extraEmotes').checked,
+    explosionOnSub:$('explosionOnSub').checked,
+    explosionOnFollow:$('explosionOnFollow').checked,
+    explosionOnRaid:$('explosionOnRaid').checked,
+    minCombo:clamp($('minCombo').value,2,50,2),
+    maxEmotes:clamp($('maxEmotes').value,1,10,1),
+    maxTimeout:clamp($('maxTimeout').value,10,60,30)
+  };
+  return c;
+}
+function fillForm(src){
+  $('channel').value=src.get('channel')||src.get('kick')||'';
+  $('chatroomId').value=src.get('chatroomId')||'';
+  $('animation').value=src.get('animation')||'random';
+  $('durationMultiplier').value=src.get('durationMultiplier')||'1';
+  $('minCombo').value=src.get('minCombo')||'2';
+  $('maxEmotes').value=src.get('maxEmotes')||'1';
+  $('maxTimeout').value=src.get('maxTimeout')||'30';
+  $('disableOnChat').checked=src.get('disableOnChat')==='true';
+  $('extraEmotes').checked=src.get('extraEmotes')!=='false';
+  $('explosionOnSub').checked=src.get('explosionOnSub')!=='false';
+  $('explosionOnFollow').checked=src.get('explosionOnFollow')==='true';
+  $('explosionOnRaid').checked=src.get('explosionOnRaid')==='true'||src.get('explosionOnHost')==='true';
+}
+function buildQuery(c,obs){
+  const q=new URLSearchParams();
+  if(c.channel)q.set('channel',c.channel);
+  if(c.chatroomId)q.set('chatroomId',c.chatroomId);
+  if(c.animation!=='random')q.set('animation',c.animation);
+  if(c.durationMultiplier!==1)q.set('durationMultiplier',String(c.durationMultiplier));
+  if(c.disableOnChat)q.set('disableOnChat','true');
+  if(!c.extraEmotes)q.set('extraEmotes','false');
+  if(!c.explosionOnSub)q.set('explosionOnSub','false');
+  if(c.explosionOnFollow)q.set('explosionOnFollow','true');
+  if(c.explosionOnRaid)q.set('explosionOnRaid','true');
+  if(c.minCombo!==2)q.set('minCombo',String(c.minCombo));
+  if(c.maxEmotes!==1)q.set('maxEmotes',String(c.maxEmotes));
+  if(c.maxTimeout!==30)q.set('maxTimeout',String(c.maxTimeout));
+  if(obs){q.set('obs','1');q.set('hud','0')}
+  return q.toString();
+}
+function fileName(){return (location.pathname.split('/').pop()||'emote-wall.html')}
+function updateUrlBox(){
+  const c=readForm();
+  $('urlBox').textContent=c.channel
+    ? fileName()+'?'+buildQuery(c,true)
+    : 'wpisz nick kanału';
+}
+
+fillForm(Q);
+updateUrlBox();
+FIELDS.forEach(id=>$(id).addEventListener('input',updateUrlBox));
+CHECKS.forEach(id=>$(id).addEventListener('change',updateUrlBox));
+
+if(overlayMode){
+  document.body.classList.remove('setup');
+  $('ui').style.display='none';
+}
+
+let cfg=Object.assign({
+  channel:(Q.get('channel')||Q.get('kick')||'').replace(/^@/,'').toLowerCase(),
+  chatroomId:Q.get('chatroomId')||'',
+  animation:Q.get('animation')||'random',
+  durationMultiplier:num(Q.get('durationMultiplier'),.5,4,1),
+  disableOnChat:Q.get('disableOnChat')==='true',
+  extraEmotes:Q.get('extraEmotes')!=='false',
+  explosionOnSub:Q.get('explosionOnSub')!=='false',
+  explosionOnFollow:Q.get('explosionOnFollow')==='true',
+  explosionOnRaid:Q.get('explosionOnRaid')==='true'||Q.get('explosionOnHost')==='true',
   minCombo:clamp(Q.get('minCombo'),2,50,2),
-  maxTimeout:1000*clamp(Q.get('maxTimeout'),10,60,30)
-};
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-const box=document.getElementById('emoteContainer');
+  maxEmotes:clamp(Q.get('maxEmotes'),1,10,1),
+  maxTimeout:clamp(Q.get('maxTimeout'),10,60,30)
+}, overlayMode?{}:readForm());
+
+const cv=$('c'),ctx=cv.getContext('2d'),box=$('emoteContainer');
 const parts=[],cache=new Map(),fail=new Set(),pool=[],byName=new Map();
 const counts={},nodes={};
-let budget=0,tier='medium',ws,ping,re;
+let budget=0,tier='medium',ws,ping,re,running=false;
 function sz(){cv.width=innerWidth;cv.height=innerHeight}
 addEventListener('resize',sz);sz();
 (function(){let n=0,t=performance.now();(function f(){n++;performance.now()-t<1000?requestAnimationFrame(f):tier=n<30?'low':n<50?'medium':'high'})()})();
+function setSt(ok,t){const el=$('st');el.className='status '+(ok===1?'on':ok===0?'off':'');el.textContent=t}
+
 function img(src){
   if(!src||fail.has(src))return Promise.reject();
   if(cache.has(src))return Promise.resolve(cache.get(src));
@@ -51,25 +227,25 @@ function img(src){
 }
 function kickUrl(id){return 'https://files.kick.com/emotes/'+id+'/fullsize'}
 function remember(n,u){if(!n||!u)return;const k=String(n).toLowerCase();if(!byName.has(k)){byName.set(k,u);pool.push(u)}}
-function pickAnim(f){if(f&&ANIMS.includes(f))return f;if(cfg.anim!=='random'&&ANIMS.includes(cfg.anim))return cfg.anim;return ANIMS[Math.floor(Math.random()*4)]}
+function pickAnim(f){if(f&&ANIMS.includes(f))return f;if(cfg.animation!=='random'&&ANIMS.includes(cfg.animation))return cfg.animation;return ANIMS[Math.floor(Math.random()*4)]}
 function nExpl(){let n={low:5,medium:10,high:20}[tier]||10;if(tier==='low')n=Math.round(n/2);else if(tier==='medium')n=Math.round(n*.75);return Math.max(3,n)}
 async function spawn(x,y,src,force){
   if(budget>=100)return;budget++;setTimeout(()=>budget--,1000);
   let im;try{im=await img(src);if(!im.complete)await new Promise(r=>im.onload=r)}catch{return}
   const mx=Math.min(innerHeight/10,64);
-  let w=Math.floor(Math.random()*mx+20),h=Math.floor(w*(im.naturalHeight/im.naturalWidth));
-  if(im.naturalWidth>im.naturalHeight){h=w;w=Math.floor(h*(im.naturalWidth/im.naturalHeight))}
-  const type=pickAnim(force),now=Date.now(),mul=cfg.dur;
+  let w=Math.floor(Math.random()*mx+20),h=Math.floor(w*(im.naturalHeight/im.naturalWidth||1));
+  if(im.naturalWidth>im.naturalHeight){h=w;w=Math.floor(h*(im.naturalWidth/im.naturalHeight||1))}
+  const type=pickAnim(force),now=Date.now(),mul=cfg.durationMultiplier;
   if(type==='rotation')parts.push({type,img:im,x,y,width:w,height:h,destX:x+300*(Math.random()-.5),destY:y+300*(Math.random()-.5),rotation:520*Math.random(),start:now,duration:1000*Math.random()+5000*mul});
   else if(type==='bounce')parts.push({type,img:im,x,y,width:w,height:h,vx:8*(Math.random()-.5),vy:8*(Math.random()-.5),ax:0,ay:0,start:now,duration:4000*Math.random()+4000*mul});
   else if(type==='fireworks'){for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,d=100+150*Math.random();parts.push({type,img:im,x,y,width:w,height:h,dx:Math.cos(a)*d,dy:Math.sin(a)*d,start:now,duration:1200})}}
-  else{const depth=Math.random(),ww=w*(.7+.6*depth),hh=h*(.7+.6*depth),vy=6+10*depth;parts.push({type:'rain',img:im,x:Math.random()*(innerWidth-ww),y:-hh,width:ww,height:hh,vy,sway:(Math.random()-.5)*(depth<.5?1:2),swaySpeed:.008+.012*Math.random(),swayPhase:Math.random()*Math.PI*2,rotation:10*(Math.random()-.5),depth,start:now,duration:(innerHeight+hh)/vy*16,fadeOut:.15+.1*Math.random()})}
+  else{const depth=Math.random(),ww=w*(.7+.6*depth),hh=h*(.7+.6*depth),vy=6+10*depth;parts.push({type:'rain',img:im,x:Math.random()*Math.max(1,innerWidth-ww),y:-hh,width:ww,height:hh,vy,sway:(Math.random()-.5)*(depth<.5?1:2),swaySpeed:.008+.012*Math.random(),swayPhase:Math.random()*Math.PI*2,rotation:10*(Math.random()-.5),depth,start:now,duration:(innerHeight+hh)/vy*16,fadeOut:.15+.1*Math.random()})}
 }
 function burst(src){return spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),src,'fireworks')}
 async function explode(list){
   list=(list&&list.length?list:pool).filter(Boolean);if(!list.length)return;
   const n=nExpl(),u=[];
-  while(u.length<n){const p=list[Math.floor(Math.random()*list.length)];if(!u.includes(p)||u.length>=list.length)u.push(p);if(u.length>80)break}
+  while(u.length<n){u.push(list[Math.floor(Math.random()*list.length)]);if(u.length>80)break}
   const wait=tier==='low'?0:tier==='medium'?1500:750,half=Math.round(u.length/2);
   for(let i=0;i<half;i++)burst(u[i]);
   if(tier==='low')return;await new Promise(r=>setTimeout(r,wait));
@@ -90,6 +266,7 @@ function draw(){
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
+
 function pop(el){el.style.transform='scale(1.2)';setTimeout(()=>el.style.transform='scale(1)',200)}
 function dropCombo(url){
   const n=nodes[url];if(!n)return;
@@ -114,12 +291,11 @@ function bump(url){
   }
   const n=nodes[url];counts[url]++;n.comboText.textContent='x'+counts[url];
   if(!n.visible&&counts[url]>=cfg.minCombo){
-    n.emoteCombo.style.display='none';
     n.emoteImg.src=url;
-    n.emoteImg.onload=()=>{n.visible=true;n.emoteCombo.style.display='flex';layout();if(!n.deleteTimeout)n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout)};
+    n.emoteImg.onload=()=>{n.visible=true;n.emoteCombo.style.display='flex';layout();if(!n.deleteTimeout)n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout*1000)};
     n.emoteImg.onerror=()=>dropCombo(url);
   }
-  if(n.visible){clearTimeout(n.deleteTimeout);n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout);pop(n.emoteImg);pop(n.comboText)}
+  if(n.visible){clearTimeout(n.deleteTimeout);n.deleteTimeout=setTimeout(()=>dropCombo(url),cfg.maxTimeout*1000);pop(n.emoteImg);pop(n.comboText)}
   layout();
 }
 function parseKick(text){
@@ -135,7 +311,7 @@ function parseKick(text){
 }
 function onChat(text){
   const urls=parseKick(text);
-  if(!cfg.chat)return;
+  if(cfg.disableOnChat)return;
   for(const u of urls)spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),u);
 }
 async function j(url){const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw 0;return r.json()}
@@ -175,10 +351,10 @@ async function loadCh(slug){
   if(!data)throw 0;
   walkEmotes(data);
   try{walkEmotes(await j('https://kick.com/emotes/'+encodeURIComponent(slug)))}catch{}
-  const chatroomId=Q.get('chatroomId')||(data.chatroom&&data.chatroom.id)||data.chatroom_id;
-  const channelId=Q.get('channelId')||data.id||(data.user&&data.user.id);
+  const chatroomId=cfg.chatroomId||(data.chatroom&&data.chatroom.id)||data.chatroom_id;
+  const channelId=data.id||(data.user&&data.user.id);
   const userId=data.user_id||(data.user&&data.user.id)||data.id;
-  if(cfg.extra)await third(slug,userId);
+  if(cfg.extraEmotes)await third(slug,userId);
   return {chatroomId,channelId};
 }
 function send(s,ev,d){if(s.readyState===1)s.send(JSON.stringify({event:ev,data:d}))}
@@ -186,25 +362,50 @@ function sock(room,chan){
   if(ws)try{ws.close()}catch{}
   clearInterval(ping);clearTimeout(re);
   ws=new WebSocket(PUSHER);
-  ws.onclose=()=>{re=setTimeout(()=>sock(room,chan),2000+Math.random()*2000)};
+  setSt(2,'łączenie…');
+  ws.onclose=()=>{setSt(0,'rozłączono, reconnect');re=setTimeout(()=>sock(room,chan),2000+Math.random()*2000)};
   ws.onmessage=e=>{
     let f;try{f=JSON.parse(e.data)}catch{return}
     const ev=f.event||'';
     if(ev==='pusher:connection_established'){
       send(ws,'pusher:subscribe',{auth:'',channel:'chatrooms.'+room+'.v2'});
       if(chan){send(ws,'pusher:subscribe',{auth:'',channel:'channel.'+chan});send(ws,'pusher:subscribe',{auth:'',channel:'channel_'+chan})}
-      clearInterval(ping);ping=setInterval(()=>send(ws,'pusher:ping',{}),30000);return;
+      clearInterval(ping);ping=setInterval(()=>send(ws,'pusher:ping',{}),30000);
+      setSt(1,cfg.channel+' · '+pool.length+' emotów');
+      return;
     }
     if(ev==='pusher:ping'){send(ws,'pusher:pong',{});return}
     let d=f.data;if(typeof d==='string')try{d=JSON.parse(d)}catch{d={}}
     const s=ev.replace(/^App\\Events\\/,'');
     if(s==='ChatMessageEvent'||s==='ChatMessageSentEvent')onChat(d.content||d.message||'');
-    else if(/Subscription|GiftedSubscription|LuckyUsersWhoGotGift/i.test(s)){if(cfg.onSub)explode(pool)}
-    else if(/Follow/i.test(s)){if(cfg.onFollow)explode(pool)}
-    else if(/Host|Raid/i.test(s)){if(cfg.onRaid)explode(pool)}
+    else if(/Subscription|GiftedSubscription|LuckyUsersWhoGotGift/i.test(s)){if(cfg.explosionOnSub)explode(pool)}
+    else if(/Follow/i.test(s)){if(cfg.explosionOnFollow)explode(pool)}
+    else if(/Host|Raid/i.test(s)){if(cfg.explosionOnRaid)explode(pool)}
   };
 }
-if(CH)loadCh(CH).then(i=>{if(i.chatroomId)sock(i.chatroomId,i.channelId)}).catch(()=>{});
+async function start(){
+  cfg=Object.assign(cfg,readForm());
+  if(!cfg.channel){setSt(0,'wpisz nick');return}
+  history.replaceState(null,'','?'+buildQuery(cfg,false));
+  updateUrlBox();
+  setSt(2,'szukam kanału '+cfg.channel+'…');
+  try{
+    const i=await loadCh(cfg.channel);
+    if(!i.chatroomId){setSt(0,'brak chatroom ID');return}
+    running=true;sock(i.chatroomId,i.channelId);
+  }catch{setSt(0,'API Kick zablokowane — daj chatroomId albo otwórz w OBS')}
+}
+$('startBtn').onclick=start;
+$('copyBtn').onclick=async()=>{
+  const c=readForm();
+  if(!c.channel)return;
+  const text=(location.href.split('?')[0])+'?'+buildQuery(c,true);
+  try{await navigator.clipboard.writeText(text);setSt(1,'URL skopiowany')}catch{$('urlBox').textContent=text}
+};
+const DEMO=['https://files.kick.com/emotes/37226/fullsize','https://files.kick.com/emotes/1730756/fullsize'];
+$('testBtn').onclick=()=>{(pool.length?pool:DEMO).slice(0,8).forEach((u,i)=>setTimeout(()=>burst(u),i*40))};
+$('testComboBtn').onclick=()=>{const u=(pool[0]||DEMO[0]);for(let i=0;i<cfg.minCombo+2;i++)bump(u)};
+if(overlayMode&&cfg.channel)start();
 })();
 </script>
 </body>
