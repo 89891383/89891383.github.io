@@ -128,8 +128,8 @@
 
         <div class="tog"><div class="t">Pokaż tytuł klipu<small>Pasek z tytułem i autorem na dole</small></div>
           <label class="sw"><input id="cap" type="checkbox" checked><span class="sl"></span></label></div>
-        <div class="tog"><div class="t">Pełny random od startu<small>Wczyta całe archiwum przed 1. klipem (zalecane)</small></div>
-          <label class="sw"><input id="pre" type="checkbox" checked><span class="sl"></span></label></div>
+        <div class="tog"><div class="t">Wczytaj całe archiwum przed startem<small>100% losowo od 1. klipu, ale wolniejszy start. Domyślnie: szybki start, reszta doczytuje się w tle</small></div>
+          <label class="sw"><input id="pre" type="checkbox"><span class="sl"></span></label></div>
         <div class="tog"><div class="t">Wyciszony<small>Przyda się do testów w przeglądarce</small></div>
           <label class="sw"><input id="mute" type="checkbox"><span class="sl"></span></label></div>
 
@@ -175,10 +175,10 @@
       <h3>FAQ</h3>
       <div class="faq">
         <div class="qa"><h4>Trzeba proxy / CORS?</h4><p>Zwykle nie — fetch do Kicka przechodzi z OBS bez proxy. Gdyby Kick kiedyś zaczął blokować, wpisz adres proxy w „Zaawansowane".</p></div>
-        <div class="qa"><h4>Po co „pełny random od startu"?</h4><p>Bez tego pierwsze klipy lecą z najnowszej strony, zanim doładuje się reszta. Z włączoną opcją najpierw wczytuje całe archiwum, więc już pierwszy klip jest losowy z całości.</p></div>
+        <div class="qa"><h4>Kiedy włączyć „wczytaj całe archiwum"?</h4><p>Domyślnie player rusza po chwili i doczytuje resztę w tle — start jest szybki, a losowanie i tak obejmuje całość. Włącz tę opcję tylko, jeśli chcesz mieć 100% losowo już od pierwszego klipu (kosztem dłuższego startu).</p></div>
         <div class="qa"><h4>Będzie dźwięk?</h4><p>W OBS tak. W zwykłej przeglądarce autoplay z dźwiękiem bywa blokowany, więc podgląd może wystartować wyciszony — to normalne.</p></div>
         <div class="qa"><h4>Skąd bierze klipy?</h4><p>Z publicznego endpointu <code>kick.com/api/v2/channels/&lt;kanał&gt;/clips</code>. Używa tylko publicznych danych kanału, niczego nie wysyła.</p></div>
-        <div class="qa"><h4>Duży kanał = długie ładowanie?</h4><p>Przy „pełnym randomie" i tysiącach klipów pierwszy klip pojawi się po kilku–kilkunastu sekundach. Możesz wyłączyć tę opcję, żeby ruszyć natychmiast (kosztem tego, że początek jest z najnowszych).</p></div>
+        <div class="qa"><h4>Długo się ładuje?</h4><p>Nie powinno — domyślnie player startuje po kilku stronach (~sekunda), a całe archiwum doczytuje się w tle. Jeśli włączyłeś „wczytaj całe archiwum", to właśnie ta opcja czeka na wszystko — wyłącz ją dla natychmiastowego startu.</p></div>
       </div>
     </section>
 
@@ -248,12 +248,16 @@
   /* ================= PLAYER ================= */
   function startPlayer(){
     document.body.classList.add("play");
+    document.getElementById("player").hidden = false;          // <-- pokaż wideo (było ukryte)
+    document.documentElement.style.background = "transparent";  // transparent też na <html> (dla OBS)
+    document.body.style.background = "transparent";
     const streamer = chParam.toLowerCase();
     const time  = (P.get("duration")||P.get("time")||"all").trim();
     const sort  = (P.get("sort")||"date").trim();
     const proxy = (P.get("proxy")||"").trim();
     const showCap = P.get("caption") !== "0";
-    const preload = P.get("preload") === "all";
+    const preload = P.get("preload") === "all";                       // czekaj na całe archiwum
+    const startPages = Math.max(1, parseInt(P.get("startPages")||"4",10)); // graj po tylu stronach, resztę w tle
     const muted = P.get("mute") === "1";
     const volume = Math.min(1,Math.max(0,parseFloat(P.get("volume")||"1")));
     const pageCap = parseInt(P.get("maxPages")||"300",10);
@@ -281,7 +285,8 @@
         const batch=(data&&data.clips)||[], last=batch[batch.length-1];
         for(const c of batch){ if(!c||!c.id||seen.has(c.id))continue; if(!mediaUrl(c))continue; seen.add(c.id); clips.push(c); }
         log("page",page,"pool",clips.length);
-        if(!preload&&!started&&clips.length){ started=true; playNext(); }
+        // szybki start: gramy po kilku stronach, a resztę archiwum doczytujemy w tle
+        if(!preload&&!started&&clips.length&&page>=startPages){ started=true; playNext(); }
         let nc=(data.nextCursor??data.next_cursor); if(nc==null||nc==="") nc=buildCursor(last);
         if(!nc||batch.length===0) break; cursor=nc;
       }
