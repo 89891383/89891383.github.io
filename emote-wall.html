@@ -4,55 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Emote Wall</title>
+<script>
+(function(){
+  var q=location.search;
+  if(/[?&](obs=1|overlay=1|mode=overlay|hud=0)(?:&|$)/.test(q))
+    document.documentElement.className='overlay';
+})();
+</script>
 <style>
-:root{--bg:#0c0e14;--card:#141822;--line:#262c3a;--txt:#eef2f8;--mut:#8b93a7;--acc:#53fc18}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;font-family:Inter,system-ui,Segoe UI,sans-serif}
-html,body{background:transparent;background-color:rgba(0,0,0,0);color:var(--txt);overflow:hidden}
-body.setup{background:radial-gradient(900px 500px at 0% 0%,rgba(83,252,24,.08),transparent 50%),var(--bg);overflow:auto}
-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+html,body{margin:0;padding:0;width:100%;height:100%;background:transparent;background-color:rgba(0,0,0,0);overflow:hidden;font-family:Inter,system-ui,Segoe UI,sans-serif;color:#eef2f8}
+html.overlay,html.overlay body{background:transparent!important;background-color:rgba(0,0,0,0)!important}
+html.overlay #ui{display:none!important}
+body.setup{background:#0c0e14;overflow:auto}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 #ui{display:none;position:relative;z-index:10;max-width:820px;margin:32px auto;padding:0 16px 48px}
 body.setup #ui{display:block}
 .top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.logo{width:38px;height:38px;border-radius:10px;background:var(--acc);color:#111;font-weight:800;display:grid;place-items:center}
-h1{font-size:22px}
-.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.logo{width:38px;height:38px;border-radius:10px;background:#53fc18;color:#111;font-weight:800;display:grid;place-items:center}
+h1{font-size:22px;margin:0}
+.sub{color:#8b93a7;font-size:13px;margin-top:2px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:720px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:12px}
-label.l{display:block;font-size:12px;color:var(--mut);margin:10px 0 6px}
-input[type=text],input[type=number],select{width:100%;background:#0d1018;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px 11px;font:inherit}
-input:focus,select:focus{outline:none;border-color:var(--acc)}
-.chk{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;color:#d5dbe8}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#141822;border:1px solid #262c3a;border-radius:14px;padding:16px}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#8b93a7;margin:0 0 12px}
+label.l{display:block;font-size:12px;color:#8b93a7;margin:10px 0 6px}
+input,select{width:100%;background:#0d1018;border:1px solid #262c3a;color:#eef2f8;border-radius:9px;padding:10px 11px;font:inherit;box-sizing:border-box}
+.chk{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer;font:inherit}
-.p{background:var(--acc);color:#111}
-.g{background:#1b2130;color:#fff;border:1px solid var(--line)}
-.urlbox{margin-top:12px;background:#0d1018;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12px;color:#b8c0d0;word-break:break-all}
-.status{margin-top:10px;font-size:12px;color:var(--mut)}
-.status.on{color:var(--acc)}.status.off{color:#ff6b6b}
-.hint{margin-top:8px;font-size:12px;color:var(--mut);line-height:1.45}
-</style>
-<script>
-if(/[?&](obs=1|overlay=1|mode=overlay|hud=0)(?:&|$)/.test(location.search))
-  document.documentElement.classList.add("overlay");
-</script>
-<style>
-html.overlay,html.overlay body{background:transparent!important;background-color:rgba(0,0,0,0)!important;overflow:hidden}
-html.overlay #ui{display:none!important}
-html.overlay body.setup{background:transparent!important}
+.p{background:#53fc18;color:#111}
+.g{background:#1b2130;color:#fff;border:1px solid #262c3a}
+.urlbox{margin-top:12px;background:#0d1018;border:1px solid #262c3a;border-radius:9px;padding:10px 12px;font-size:12px;color:#b8c0d0;word-break:break-all}
+.status{margin-top:10px;font-size:12px;color:#8b93a7}
+.status.on{color:#53fc18}.status.off{color:#ff6b6b}
+.hint{margin-top:8px;font-size:12px;color:#8b93a7;line-height:1.45}
 </style>
 </head>
-<body class="setup">
+<body>
 <canvas id="c"></canvas>
 <div id="ui">
   <div class="top">
     <div class="logo">W</div>
     <div>
       <h1>Emote Wall</h1>
-      <div class="sub">Emoty z czatu Kick na cały ekran. Osobny overlay do OBS.</div>
+      <div class="sub">Emoty z czatu Kick. W OBS wklej URL z obs=1, nie Local file.</div>
     </div>
   </div>
   <div class="grid">
@@ -60,9 +55,8 @@ html.overlay body.setup{background:transparent!important}
       <h2>Kanał</h2>
       <label class="l">Nick Kick</label>
       <input id="channel" type="text" placeholder="np. xqc" autocomplete="off">
-      <label class="l">Chatroom ID (opcjonalnie)</label>
-      <input id="chatroomId" type="text" placeholder="zostaw puste">
-      <p class="hint">OBS: Browser Source 1920×1080, przezroczyste tło.</p>
+      <label class="l">Chatroom ID (gdy API nie wstanie)</label>
+      <input id="chatroomId" type="text" placeholder="opcjonalnie">
     </div>
     <div class="card">
       <h2>Animacja</h2>
@@ -85,233 +79,376 @@ html.overlay body.setup{background:transparent!important}
     <div class="card" style="grid-column:1/-1">
       <h2>OBS</h2>
       <div class="btns">
-        <button class="p" id="startBtn">Uruchom podgląd</button>
-        <button class="g" id="copyBtn">Kopiuj URL</button>
-        <button class="g" id="testBtn">Test</button>
+        <button class="p" id="startBtn" type="button">Uruchom podgląd</button>
+        <button class="g" id="copyBtn" type="button">Kopiuj URL</button>
+        <button class="g" id="testBtn" type="button">Test</button>
       </div>
-      <div class="urlbox" id="urlBox">ustaw nick</div>
+      <div class="urlbox" id="urlBox">wpisz nick</div>
       <div class="status" id="st">oczekiwanie</div>
+      <p class="hint">OBS → Browser → pole URL (nie Local file): ten link z obs=1. 1920×1080, tło przezroczyste.</p>
     </div>
   </div>
 </div>
 <script>
-(()=>{
-const $=id=>document.getElementById(id);
-const Q=new URLSearchParams(location.search);
-const overlay=Q.get('obs')==='1'||Q.get('overlay')==='1'||Q.get('mode')==='overlay'||Q.get('hud')==='0';
-const ANIMS=['bounce','rotation','fireworks','rain'];
-const PUSHER='wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false';
-function clamp(v,a,b,d){v=parseInt(v,10);return isNaN(v)?d:Math.min(b,Math.max(a,v))}
-function num(v,a,b,d){v=parseFloat(v);return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d}
-function readForm(){return{
-  channel:($('channel').value||'').trim().replace(/^@/,'').toLowerCase(),
-  chatroomId:$('chatroomId').value.trim(),
-  animation:$('animation').value,
-  durationMultiplier:num($('durationMultiplier').value,.5,4,1),
-  disableOnChat:$('disableOnChat').checked,
-  extraEmotes:$('extraEmotes').checked,
-  explosionOnSub:$('explosionOnSub').checked,
-  explosionOnFollow:$('explosionOnFollow').checked,
-  explosionOnRaid:$('explosionOnRaid').checked
-}}
-function fillForm(s){
-  $('channel').value=s.get('channel')||s.get('kick')||'';
-  $('chatroomId').value=s.get('chatroomId')||'';
-  $('animation').value=s.get('animation')||'random';
-  $('durationMultiplier').value=s.get('durationMultiplier')||'1';
-  $('disableOnChat').checked=s.get('disableOnChat')==='true';
-  $('extraEmotes').checked=s.get('extraEmotes')!=='false';
-  $('explosionOnSub').checked=s.get('explosionOnSub')!=='false';
-  $('explosionOnFollow').checked=s.get('explosionOnFollow')==='true';
-  $('explosionOnRaid').checked=s.get('explosionOnRaid')==='true'||s.get('explosionOnHost')==='true';
-}
-function buildQuery(c,obs){
-  const q=new URLSearchParams();
-  if(c.channel)q.set('channel',c.channel);
-  if(c.chatroomId)q.set('chatroomId',c.chatroomId);
-  if(c.animation!=='random')q.set('animation',c.animation);
-  if(c.durationMultiplier!==1)q.set('durationMultiplier',String(c.durationMultiplier));
-  if(c.disableOnChat)q.set('disableOnChat','true');
-  if(!c.extraEmotes)q.set('extraEmotes','false');
-  if(!c.explosionOnSub)q.set('explosionOnSub','false');
-  if(c.explosionOnFollow)q.set('explosionOnFollow','true');
-  if(c.explosionOnRaid)q.set('explosionOnRaid','true');
-  if(obs){q.set('obs','1');q.set('hud','0')}
-  return q.toString();
-}
-function fileName(){return location.pathname.split('/').pop()||'emote-wall.html'}
-function updateUrlBox(){const c=readForm();$('urlBox').textContent=c.channel?fileName()+'?'+buildQuery(c,true):'wpisz nick kanału'}
-fillForm(Q);updateUrlBox();
-['channel','chatroomId','animation','durationMultiplier'].forEach(id=>$(id).addEventListener('input',updateUrlBox));
-['disableOnChat','extraEmotes','explosionOnSub','explosionOnFollow','explosionOnRaid'].forEach(id=>$(id).addEventListener('change',updateUrlBox));
-if(overlay){document.documentElement.classList.add('overlay');document.body.classList.remove('setup');document.body.style.background='transparent';const u=$('ui');if(u)u.remove()}
-let cfg=Object.assign({
-  channel:(Q.get('channel')||Q.get('kick')||'').replace(/^@/,'').toLowerCase(),
-  chatroomId:Q.get('chatroomId')||'',
-  animation:Q.get('animation')||'random',
-  durationMultiplier:num(Q.get('durationMultiplier'),.5,4,1),
-  disableOnChat:Q.get('disableOnChat')==='true',
-  extraEmotes:Q.get('extraEmotes')!=='false',
-  explosionOnSub:Q.get('explosionOnSub')!=='false',
-  explosionOnFollow:Q.get('explosionOnFollow')==='true',
-  explosionOnRaid:Q.get('explosionOnRaid')==='true'||Q.get('explosionOnHost')==='true'
-},overlay?{}:readForm());
-const cv=$('c'),ctx=cv.getContext('2d');
-const parts=[],cache=new Map(),fail=new Set(),pool=[],byName=new Map();
-let budget=0,tier='medium',ws,ping,re;
-function sz(){cv.width=innerWidth;cv.height=innerHeight}
-addEventListener('resize',sz);sz();
-(function(){let n=0,t=performance.now();(function f(){n++;performance.now()-t<1000?requestAnimationFrame(f):tier=n<30?'low':n<50?'medium':'high'})()})();
-function setSt(ok,t){const el=$('st');el.className='status '+(ok===1?'on':ok===0?'off':'');el.textContent=t}
-function img(src){
-  if(!src||fail.has(src))return Promise.reject();
-  if(cache.has(src))return Promise.resolve(cache.get(src));
-  return new Promise((ok,no)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>{cache.set(src,i);ok(i)};i.onerror=()=>{fail.add(src);no()};i.src=src});
-}
-function kickUrl(id){return 'https://files.kick.com/emotes/'+id+'/fullsize'}
-function remember(n,u){if(!n||!u)return;const k=String(n).toLowerCase();if(!byName.has(k)){byName.set(k,u);pool.push(u)}}
-function pickAnim(f){if(f&&ANIMS.includes(f))return f;if(cfg.animation!=='random'&&ANIMS.includes(cfg.animation))return cfg.animation;return ANIMS[Math.floor(Math.random()*4)]}
-function nExpl(){let n={low:5,medium:10,high:20}[tier]||10;if(tier==='low')n=Math.round(n/2);else if(tier==='medium')n=Math.round(n*.75);return Math.max(3,n)}
-async function spawn(x,y,src,force){
-  if(budget>=100)return;budget++;setTimeout(()=>budget--,1000);
-  let im;try{im=await img(src);if(!im.complete)await new Promise(r=>im.onload=r)}catch{return}
-  const mx=Math.min(innerHeight/10,64);
-  let w=Math.floor(Math.random()*mx+20),h=Math.floor(w*(im.naturalHeight/im.naturalWidth||1));
-  if(im.naturalWidth>im.naturalHeight){h=w;w=Math.floor(h*(im.naturalWidth/im.naturalHeight||1))}
-  const type=pickAnim(force),now=Date.now(),mul=cfg.durationMultiplier;
-  if(type==='rotation')parts.push({type,img:im,x,y,width:w,height:h,destX:x+300*(Math.random()-.5),destY:y+300*(Math.random()-.5),rotation:520*Math.random(),start:now,duration:1000*Math.random()+5000*mul});
-  else if(type==='bounce')parts.push({type,img:im,x,y,width:w,height:h,vx:8*(Math.random()-.5),vy:8*(Math.random()-.5),ax:0,ay:0,start:now,duration:4000*Math.random()+4000*mul});
-  else if(type==='fireworks'){for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,d=100+150*Math.random();parts.push({type,img:im,x,y,width:w,height:h,dx:Math.cos(a)*d,dy:Math.sin(a)*d,start:now,duration:1200})}}
-  else{const depth=Math.random(),ww=w*(.7+.6*depth),hh=h*(.7+.6*depth),vy=6+10*depth;parts.push({type:'rain',img:im,x:Math.random()*Math.max(1,innerWidth-ww),y:-hh,width:ww,height:hh,vy,sway:(Math.random()-.5)*(depth<.5?1:2),swaySpeed:.008+.012*Math.random(),swayPhase:Math.random()*Math.PI*2,rotation:10*(Math.random()-.5),depth,start:now,duration:(innerHeight+hh)/vy*16,fadeOut:.15+.1*Math.random()})}
-}
-function burst(src){return spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),src,'fireworks')}
-async function explode(list){
-  list=(list&&list.length?list:pool).filter(Boolean);if(!list.length)return;
-  const n=nExpl(),u=[];
-  while(u.length<n){u.push(list[Math.floor(Math.random()*list.length)]);if(u.length>80)break}
-  const wait=tier==='low'?0:tier==='medium'?1500:750,half=Math.round(u.length/2);
-  for(let i=0;i<half;i++)burst(u[i]);
-  if(tier==='low')return;await new Promise(r=>setTimeout(r,wait));
-  for(let i=half;i<u.length;i++)burst(u[i]);
-}
-function draw(){
-  ctx.clearRect(0,0,cv.width,cv.height);
-  const now=Date.now();
-  for(let i=parts.length-1;i>=0;i--)if(now-parts[i].start>=parts[i].duration)parts.splice(i,1);
-  for(const p of parts){
-    const t=(now-p.start)/p.duration;let x=p.x,y=p.y,s=1,a=1,r=0;
-    if(p.type==='fireworks'){x=p.x+p.dx*t;y=p.y+p.dy*t;s=1-.5*t;a=1-t}
-    else if(p.type==='bounce'){p.vx+=p.ax;p.vy+=p.ay;p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cv.width-p.width)p.vx*=-1;if(p.y<0||p.y>cv.height-p.height)p.vy*=-1;x=p.x;y=p.y;a=1-t}
-    else if(p.type==='rotation'){x=p.x+(p.destX-p.x)*t;y=p.y+(p.destY-p.y)*t;r=p.rotation*t;a=1-t}
-    else{const e=now-p.start;y=p.y+p.vy*e/16;x=p.x+32*Math.sin(p.swayPhase+e*p.swaySpeed)*p.sway;r=p.rotation*Math.sin(p.swayPhase+e*p.swaySpeed*.7);a=t>1-p.fadeOut?1-(t-(1-p.fadeOut))/p.fadeOut:.85+.15*p.depth;s=1+.2*(1-p.depth)}
-    ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,a));ctx.translate(x+p.width/2,y+p.height/2);if(r)ctx.rotate(r*Math.PI/180);ctx.drawImage(p.img,-p.width/2,-p.height/2,p.width*s,p.height*s);ctx.restore();
+(function(){
+  'use strict';
+  var Q=new URLSearchParams(location.search);
+  var OVERLAY=document.documentElement.className==='overlay' || Q.get('obs')==='1' || Q.get('mode')==='overlay';
+  var PUSHER='wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false';
+  var ANIMS=['bounce','rotation','fireworks','rain'];
+  var DEMO=['https://files.kick.com/emotes/37226/fullsize','https://files.kick.com/emotes/1730756/fullsize'];
+
+  function $(id){return document.getElementById(id)}
+  function clamp(v,a,b,d){v=parseInt(v,10);return isNaN(v)?d:Math.min(b,Math.max(a,v))}
+  function num(v,a,b,d){v=parseFloat(v);return isFinite(v)?Math.min(b,Math.max(a,v)):d}
+
+  if(!OVERLAY) document.body.className='setup';
+
+  var cfg={
+    channel:(Q.get('channel')||Q.get('kick')||'').replace(/^@/,'').toLowerCase(),
+    chatroomId:Q.get('chatroomId')||Q.get('chatroom')||'',
+    animation:Q.get('animation')||'random',
+    durationMultiplier:num(Q.get('durationMultiplier'),0.5,4,1),
+    disableOnChat:Q.get('disableOnChat')==='true',
+    extraEmotes:Q.get('extraEmotes')!=='false',
+    explosionOnSub:Q.get('explosionOnSub')!=='false',
+    explosionOnFollow:Q.get('explosionOnFollow')==='true',
+    explosionOnRaid:Q.get('explosionOnRaid')==='true'||Q.get('explosionOnHost')==='true'
+  };
+
+  function readForm(){
+    if(OVERLAY) return cfg;
+    return {
+      channel:(($('channel')&&$('channel').value)||'').trim().replace(/^@/,'').toLowerCase(),
+      chatroomId:($('chatroomId')&&$('chatroomId').value||'').trim(),
+      animation:$('animation')?$('animation').value:'random',
+      durationMultiplier:num($('durationMultiplier')&&$('durationMultiplier').value,0.5,4,1),
+      disableOnChat:!!$('disableOnChat')&&$('disableOnChat').checked,
+      extraEmotes:!$('extraEmotes')||$('extraEmotes').checked,
+      explosionOnSub:!$('explosionOnSub')||$('explosionOnSub').checked,
+      explosionOnFollow:!!$('explosionOnFollow')&&$('explosionOnFollow').checked,
+      explosionOnRaid:!!$('explosionOnRaid')&&$('explosionOnRaid').checked
+    };
+  }
+  function buildQuery(c,obs){
+    var q=new URLSearchParams();
+    if(c.channel) q.set('channel',c.channel);
+    if(c.chatroomId) q.set('chatroomId',c.chatroomId);
+    if(c.animation&&c.animation!=='random') q.set('animation',c.animation);
+    if(c.durationMultiplier&&c.durationMultiplier!==1) q.set('durationMultiplier',String(c.durationMultiplier));
+    if(c.disableOnChat) q.set('disableOnChat','true');
+    if(c.extraEmotes===false) q.set('extraEmotes','false');
+    if(c.explosionOnSub===false) q.set('explosionOnSub','false');
+    if(c.explosionOnFollow) q.set('explosionOnFollow','true');
+    if(c.explosionOnRaid) q.set('explosionOnRaid','true');
+    if(obs) q.set('obs','1');
+    return q.toString();
+  }
+  function setSt(ok,t){
+    var el=$('st'); if(!el) return;
+    el.className='status '+(ok===1?'on':ok===0?'off':'');
+    el.textContent=t;
+  }
+  function updateUrlBox(){
+    var el=$('urlBox'); if(!el) return;
+    var c=readForm();
+    var base=location.href.split('?')[0];
+    el.textContent=c.channel ? base+'?'+buildQuery(c,true) : 'wpisz nick kanału';
+  }
+  if(!OVERLAY){
+    if($('channel')) $('channel').value=cfg.channel;
+    if($('chatroomId')) $('chatroomId').value=cfg.chatroomId;
+    if($('animation')) $('animation').value=cfg.animation;
+    if($('durationMultiplier')) $('durationMultiplier').value=String(cfg.durationMultiplier);
+    if($('disableOnChat')) $('disableOnChat').checked=cfg.disableOnChat;
+    if($('extraEmotes')) $('extraEmotes').checked=cfg.extraEmotes;
+    if($('explosionOnSub')) $('explosionOnSub').checked=cfg.explosionOnSub;
+    if($('explosionOnFollow')) $('explosionOnFollow').checked=cfg.explosionOnFollow;
+    if($('explosionOnRaid')) $('explosionOnRaid').checked=cfg.explosionOnRaid;
+    updateUrlBox();
+    ['channel','chatroomId','animation','durationMultiplier'].forEach(function(id){
+      if($(id)) $(id).addEventListener('input',updateUrlBox);
+    });
+    ['disableOnChat','extraEmotes','explosionOnSub','explosionOnFollow','explosionOnRaid'].forEach(function(id){
+      if($(id)) $(id).addEventListener('change',updateUrlBox);
+    });
+  }
+
+  var cv=$('c'), ctx=cv.getContext('2d');
+  var parts=[], cache={}, fail={}, pool=[], byName={};
+  var budget=0, tier='medium', ws=null, ping=null, re=null;
+
+  function resize(){cv.width=innerWidth;cv.height=innerHeight}
+  addEventListener('resize',resize); resize();
+  (function(){var n=0,t=performance.now();(function f(){n++; if(performance.now()-t<1000) requestAnimationFrame(f); else tier=n<30?'low':n<50?'medium':'high'})()})();
+
+  function kickUrl(id){return 'https://files.kick.com/emotes/'+id+'/fullsize'}
+  function remember(name,url){
+    if(!name||!url) return;
+    var k=String(name).toLowerCase();
+    if(!byName[k]){ byName[k]=url; pool.push(url); }
+  }
+  function loadImg(src){
+    return new Promise(function(ok,no){
+      if(!src||fail[src]) return no();
+      if(cache[src]) return ok(cache[src]);
+      var i=new Image();
+      i.crossOrigin='anonymous';
+      i.onload=function(){cache[src]=i;ok(i)};
+      i.onerror=function(){fail[src]=1;no()};
+      i.src=src;
+    });
+  }
+  function pickAnim(force){
+    if(force&&ANIMS.indexOf(force)>=0) return force;
+    if(cfg.animation!=='random'&&ANIMS.indexOf(cfg.animation)>=0) return cfg.animation;
+    return ANIMS[Math.floor(Math.random()*ANIMS.length)];
+  }
+  function spawn(x,y,src,force){
+    if(budget>=100) return;
+    budget++; setTimeout(function(){budget--},1000);
+    loadImg(src).then(function(im){
+      var mx=Math.min(innerHeight/10,64);
+      var w=Math.floor(Math.random()*mx+20);
+      var h=Math.floor(w*((im.naturalHeight||1)/(im.naturalWidth||1)));
+      if((im.naturalWidth||0)>(im.naturalHeight||0)){ h=w; w=Math.floor(h*((im.naturalWidth||1)/(im.naturalHeight||1))); }
+      var type=pickAnim(force), now=Date.now(), mul=cfg.durationMultiplier;
+      if(type==='rotation'){
+        parts.push({type:type,img:im,x:x,y:y,width:w,height:h,destX:x+300*(Math.random()-0.5),destY:y+300*(Math.random()-0.5),rotation:520*Math.random(),start:now,duration:1000*Math.random()+5000*mul});
+      } else if(type==='bounce'){
+        parts.push({type:type,img:im,x:x,y:y,width:w,height:h,vx:8*(Math.random()-0.5),vy:8*(Math.random()-0.5),ax:0,ay:0,start:now,duration:4000*Math.random()+4000*mul});
+      } else if(type==='fireworks'){
+        for(var i=0;i<10;i++){
+          var a=Math.random()*Math.PI*2,d=100+150*Math.random();
+          parts.push({type:type,img:im,x:x,y:y,width:w,height:h,dx:Math.cos(a)*d,dy:Math.sin(a)*d,start:now,duration:1200});
+        }
+      } else {
+        var depth=Math.random(), ww=w*(0.7+0.6*depth), hh=h*(0.7+0.6*depth), vy=6+10*depth;
+        parts.push({type:'rain',img:im,x:Math.random()*Math.max(1,innerWidth-ww),y:-hh,width:ww,height:hh,vy:vy,sway:(Math.random()-0.5)*(depth<0.5?1:2),swaySpeed:0.008+0.012*Math.random(),swayPhase:Math.random()*Math.PI*2,rotation:10*(Math.random()-0.5),depth:depth,start:now,duration:(innerHeight+hh)/vy*16,fadeOut:0.15+0.1*Math.random()});
+      }
+    }).catch(function(){});
+  }
+  function burst(src){ spawn(Math.floor(Math.random()*innerWidth), Math.floor(Math.random()*innerHeight), src, 'fireworks'); }
+  function explode(list){
+    list=list&&list.length?list:pool;
+    if(!list.length) list=DEMO;
+    var n={low:4,medium:8,high:14}[tier]||8;
+    var wait=tier==='low'?0:tier==='medium'?1200:700;
+    var i;
+    for(i=0;i<Math.ceil(n/2);i++) burst(list[Math.floor(Math.random()*list.length)]);
+    if(tier==='low') return;
+    setTimeout(function(){
+      for(var j=0;j<Math.floor(n/2);j++) burst(list[Math.floor(Math.random()*list.length)]);
+    }, wait);
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var now=Date.now(), i, p, t, x, y, s, a, r, e;
+    for(i=parts.length-1;i>=0;i--) if(now-parts[i].start>=parts[i].duration) parts.splice(i,1);
+    for(i=0;i<parts.length;i++){
+      p=parts[i]; t=(now-p.start)/p.duration; x=p.x; y=p.y; s=1; a=1; r=0;
+      if(p.type==='fireworks'){ x=p.x+p.dx*t; y=p.y+p.dy*t; s=1-0.5*t; a=1-t; }
+      else if(p.type==='bounce'){
+        p.vx+=p.ax; p.vy+=p.ay; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>cv.width-p.width) p.vx*=-1;
+        if(p.y<0||p.y>cv.height-p.height) p.vy*=-1;
+        x=p.x; y=p.y; a=1-t;
+      } else if(p.type==='rotation'){ x=p.x+(p.destX-p.x)*t; y=p.y+(p.destY-p.y)*t; r=p.rotation*t; a=1-t; }
+      else {
+        e=now-p.start; y=p.y+p.vy*e/16; x=p.x+32*Math.sin(p.swayPhase+e*p.swaySpeed)*p.sway;
+        r=p.rotation*Math.sin(p.swayPhase+e*p.swaySpeed*0.7);
+        a=t>1-p.fadeOut ? 1-(t-(1-p.fadeOut))/p.fadeOut : 0.85+0.15*p.depth;
+        s=1+0.2*(1-p.depth);
+      }
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,Math.min(1,a));
+      ctx.translate(x+p.width/2,y+p.height/2);
+      if(r) ctx.rotate(r*Math.PI/180);
+      ctx.drawImage(p.img,-p.width/2,-p.height/2,p.width*s,p.height*s);
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
-}
-requestAnimationFrame(draw);
-function parseKick(text){
-  const urls=[],re=/\[emote:(\d+):([^\]]+)\]/g;let m;
-  while((m=re.exec(text))){const u=kickUrl(m[1]);remember(m[2],u);urls.push(u)}
-  const seen=new Set(urls);
-  for(const w of String(text||'').split(/\s+/)){
-    const raw=w.replace(/^[^\w:]+|[^\w]+$/g,'');if(!raw)continue;
-    const u=byName.get(raw.toLowerCase());
-    if(u&&!seen.has(u)){seen.add(u);urls.push(u)}
-  }
-  return urls;
-}
-function onChat(text){
-  if(cfg.disableOnChat)return;
-  for(const u of parseKick(text))spawn(Math.floor(Math.random()*innerWidth),Math.floor(Math.random()*innerHeight),u);
-}
-async function j(url){const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw 0;return r.json()}
-function walkEmotes(node){
-  if(!node)return;
-  if(Array.isArray(node)){node.forEach(walkEmotes);return}
-  if(typeof node!=='object')return;
-  const id=node.id||node.emote_id,name=node.name||node.code;
-  if(id&&name&&/^\d+$/.test(String(id)))remember(name,kickUrl(id));
-  if(node.emotes)walkEmotes(node.emotes);
-  if(node.subscribers)walkEmotes(node.subscribers);
-  if(node.subscriber_emotes)walkEmotes(node.subscriber_emotes);
-}
-async function third(slug,uid){
-  const tries=[];if(uid)tries.push('https://7tv.io/v3/users/kick/'+uid);tries.push('https://7tv.io/v3/users/kick/'+encodeURIComponent(slug));
-  for(const url of tries){
-    try{
-      const d=await j(url),sets=[];if(d.emote_set)sets.push(d.emote_set);if(d.emote_sets)sets.push(...d.emote_sets);
-      for(const set of sets)for(const e of set.emotes||[]){
-        const files=e.data&&e.data.host&&e.data.host.files||[];
-        const f=[...files].reverse().find(x=>/2x|3x|1x/.test(x.name||''))||files[0];
-        const host=e.data&&e.data.host&&e.data.host.url;
-        if(host&&f)remember(e.name,'https:'+host+'/'+f.name);
-      }
-      break;
-    }catch{}
-  }
-  try{const g=await j('https://7tv.io/v3/emote-sets/global');for(const e of g.emotes||[]){const files=e.data&&e.data.host&&e.data.host.files||[];const f=files.find(x=>/2x|3x/.test(x.name||''))||files[0];const host=e.data&&e.data.host&&e.data.host.url;if(host&&f)remember(e.name,'https:'+host+'/'+f.name)}}catch{}
-  try{const b=await j('https://api.betterttv.net/3/cached/users/kick/'+encodeURIComponent(slug));for(const e of [].concat(b.channelEmotes||[],b.sharedEmotes||[]))remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x')}catch{}
-  try{const g=await j('https://api.betterttv.net/3/cached/emotes/global');for(const e of g||[])remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x')}catch{}
-}
-async function loadCh(slug){
-  let data=null;
-  for(const u of ['https://kick.com/api/v2/channels/','https://kick.com/api/v1/channels/']){
-    try{data=await j(u+encodeURIComponent(slug));break}catch{}
-  }
-  if(!data)throw 0;
-  walkEmotes(data);
-  try{walkEmotes(await j('https://kick.com/emotes/'+encodeURIComponent(slug)))}catch{}
-  const chatroomId=cfg.chatroomId||(data.chatroom&&data.chatroom.id)||data.chatroom_id;
-  const channelId=data.id||(data.user&&data.user.id);
-  const userId=data.user_id||(data.user&&data.user.id)||data.id;
-  if(cfg.extraEmotes)await third(slug,userId);
-  return {chatroomId,channelId};
-}
-function send(s,ev,d){if(s.readyState===1)s.send(JSON.stringify({event:ev,data:d}))}
-function sock(room,chan){
-  if(ws)try{ws.close()}catch{}
-  clearInterval(ping);clearTimeout(re);
-  ws=new WebSocket(PUSHER);
-  setSt(2,'łączenie…');
-  ws.onclose=()=>{setSt(0,'rozłączono, reconnect');re=setTimeout(()=>sock(room,chan),2000+Math.random()*2000)};
-  ws.onmessage=e=>{
-    let f;try{f=JSON.parse(e.data)}catch{return}
-    const ev=f.event||'';
-    if(ev==='pusher:connection_established'){
-      send(ws,'pusher:subscribe',{auth:'',channel:'chatrooms.'+room+'.v2'});
-      if(chan){send(ws,'pusher:subscribe',{auth:'',channel:'channel.'+chan});send(ws,'pusher:subscribe',{auth:'',channel:'channel_'+chan})}
-      clearInterval(ping);ping=setInterval(()=>send(ws,'pusher:ping',{}),30000);
-      setSt(1,cfg.channel+' · '+pool.length+' emotów');return;
+
+  function parseKick(text){
+    var urls=[], re=/\[emote:(\d+):([^\]]+)\]/g, m, seen={};
+    while((m=re.exec(text))){
+      var u=kickUrl(m[1]); remember(m[2],u); urls.push(u); seen[u]=1;
     }
-    if(ev==='pusher:ping'){send(ws,'pusher:pong',{});return}
-    let d=f.data;if(typeof d==='string')try{d=JSON.parse(d)}catch{d={}}
-    const s=ev.replace(/^App\\Events\\/,'');
-    if(s==='ChatMessageEvent'||s==='ChatMessageSentEvent')onChat(d.content||d.message||'');
-    else if(/Subscription|GiftedSubscription|LuckyUsersWhoGotGift/i.test(s)){if(cfg.explosionOnSub)explode(pool)}
-    else if(/Follow/i.test(s)){if(cfg.explosionOnFollow)explode(pool)}
-    else if(/Host|Raid/i.test(s)){if(cfg.explosionOnRaid)explode(pool)}
+    String(text||'').split(/\s+/).forEach(function(w){
+      var raw=w.replace(/^[^\w:]+|[^\w]+$/g,'');
+      if(!raw) return;
+      var u=byName[raw.toLowerCase()];
+      if(u&&!seen[u]){ seen[u]=1; urls.push(u); }
+    });
+    return urls;
+  }
+  function onChat(text){
+    var urls=parseKick(text);
+    if(cfg.disableOnChat) return;
+    urls.forEach(function(u){
+      spawn(Math.floor(Math.random()*innerWidth), Math.floor(Math.random()*innerHeight), u);
+    });
+  }
+
+  function fetchJson(url){
+    return fetch(url,{headers:{'Accept':'application/json'}}).then(function(r){
+      if(!r.ok) throw new Error(String(r.status));
+      return r.json();
+    });
+  }
+  function tryUrls(urls){
+    var i=0;
+    function next(){
+      if(i>=urls.length) return Promise.reject(new Error('all failed'));
+      var u=urls[i++];
+      return fetchJson(u).catch(next);
+    }
+    return next();
+  }
+  function channelUrls(slug){
+    var raw1='https://kick.com/api/v2/channels/'+encodeURIComponent(slug);
+    var raw2='https://kick.com/api/v1/channels/'+encodeURIComponent(slug);
+    return [
+      raw1, raw2,
+      'https://corsproxy.io/?'+encodeURIComponent(raw1),
+      'https://api.allorigins.win/raw?url='+encodeURIComponent(raw1)
+    ];
+  }
+  function walkEmotes(node){
+    if(!node) return;
+    if(Array.isArray(node)){ node.forEach(walkEmotes); return; }
+    if(typeof node!=='object') return;
+    var id=node.id||node.emote_id, name=node.name||node.code;
+    if(id&&name&&/^\d+$/.test(String(id))) remember(name, kickUrl(id));
+    if(node.emotes) walkEmotes(node.emotes);
+    if(node.subscribers) walkEmotes(node.subscribers);
+    if(node.subscriber_emotes) walkEmotes(node.subscriber_emotes);
+  }
+  function load7tv(url){
+    return fetchJson(url).then(function(d){
+      var sets=[], i, j, e, files, f, host;
+      if(d.emote_set) sets.push(d.emote_set);
+      if(d.emote_sets) sets=sets.concat(d.emote_sets);
+      if(d.emotes) sets.push(d);
+      for(i=0;i<sets.length;i++){
+        var list=sets[i].emotes||[];
+        for(j=0;j<list.length;j++){
+          e=list[j];
+          files=(e.data&&e.data.host&&e.data.host.files)||[];
+          f=null;
+          for(var k=files.length-1;k>=0;k--) if(/2x|3x|1x/.test(files[k].name||'')){ f=files[k]; break; }
+          if(!f) f=files[0];
+          host=e.data&&e.data.host&&e.data.host.url;
+          if(host&&f) remember(e.name, (host.indexOf('http')===0?host:'https:'+host)+'/'+f.name);
+        }
+      }
+    }).catch(function(){});
+  }
+  function loadThird(slug, uid){
+    var jobs=[];
+    if(uid) jobs.push(load7tv('https://7tv.io/v3/users/kick/'+uid));
+    jobs.push(load7tv('https://7tv.io/v3/users/kick/'+encodeURIComponent(slug)));
+    jobs.push(load7tv('https://7tv.io/v3/emote-sets/global'));
+    jobs.push(fetchJson('https://api.betterttv.net/3/cached/emotes/global').then(function(g){
+      (g||[]).forEach(function(e){ remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x'); });
+    }).catch(function(){}));
+    jobs.push(fetchJson('https://api.betterttv.net/3/cached/users/kick/'+encodeURIComponent(slug)).then(function(b){
+      [].concat(b.channelEmotes||[], b.sharedEmotes||[]).forEach(function(e){
+        remember(e.code,'https://cdn.betterttv.net/emote/'+e.id+'/2x');
+      });
+    }).catch(function(){}));
+    return Promise.all(jobs);
+  }
+  function loadCh(slug){
+    if(cfg.chatroomId){
+      var p=cfg.extraEmotes ? loadThird(slug, '') : Promise.resolve();
+      return p.then(function(){ return {chatroomId:cfg.chatroomId, channelId:''}; });
+    }
+    return tryUrls(channelUrls(slug)).then(function(data){
+      walkEmotes(data);
+      var room=(data.chatroom&&data.chatroom.id)||data.chatroom_id;
+      var chan=data.id||(data.user&&data.user.id)||'';
+      var uid=data.user_id||(data.user&&data.user.id)||data.id||'';
+      var extra=cfg.extraEmotes ? loadThird(slug, uid) : Promise.resolve();
+      return extra.then(function(){ return {chatroomId:String(room||''), channelId:String(chan||'')}; });
+    });
+  }
+
+  function send(sock, ev, data){
+    if(sock && sock.readyState===1) sock.send(JSON.stringify({event:ev, data:data}));
+  }
+  function connect(room, chan){
+    if(!room){ setSt(0,'brak chatroom ID'); return; }
+    if(ws){ try{ws.close()}catch(e){} }
+    clearInterval(ping); clearTimeout(re);
+    setSt(2,'łączenie z czatem…');
+    ws=new WebSocket(PUSHER);
+    ws.onopen=function(){};
+    ws.onerror=function(){ setSt(0,'błąd websocket'); };
+    ws.onclose=function(){
+      setSt(0,'rozłączono, reconnect');
+      re=setTimeout(function(){ connect(room, chan); }, 2000+Math.random()*2000);
+    };
+    ws.onmessage=function(ev){
+      var f; try{f=JSON.parse(ev.data)}catch(e){return}
+      var event=f.event||'';
+      if(event==='pusher:connection_established'){
+        send(ws,'pusher:subscribe',{auth:'',channel:'chatrooms.'+room+'.v2'});
+        if(chan){
+          send(ws,'pusher:subscribe',{auth:'',channel:'channel.'+chan});
+          send(ws,'pusher:subscribe',{auth:'',channel:'channel_'+chan});
+        }
+        clearInterval(ping);
+        ping=setInterval(function(){ send(ws,'pusher:ping',{}); }, 25000);
+        setSt(1, cfg.channel+' · live · '+pool.length+' emotów');
+        return;
+      }
+      if(event==='pusher:ping'){ send(ws,'pusher:pong',{}); return; }
+      var d=f.data;
+      if(typeof d==='string'){ try{d=JSON.parse(d)}catch(e){d={}} }
+      var short=event.replace(/^App\\Events\\/,'');
+      if(short==='ChatMessageEvent'||short==='ChatMessageSentEvent') onChat(d.content||d.message||'');
+      else if(/Subscription|GiftedSubscription|LuckyUsersWhoGotGift/i.test(short)){ if(cfg.explosionOnSub) explode(pool); }
+      else if(/Follow/i.test(short)){ if(cfg.explosionOnFollow) explode(pool); }
+      else if(/Host|Raid/i.test(short)){ if(cfg.explosionOnRaid) explode(pool); }
+    };
+  }
+
+  function start(){
+    var form=readForm();
+    cfg.channel=form.channel; cfg.chatroomId=form.chatroomId; cfg.animation=form.animation;
+    cfg.durationMultiplier=form.durationMultiplier; cfg.disableOnChat=form.disableOnChat;
+    cfg.extraEmotes=form.extraEmotes; cfg.explosionOnSub=form.explosionOnSub;
+    cfg.explosionOnFollow=form.explosionOnFollow; cfg.explosionOnRaid=form.explosionOnRaid;
+    if(!cfg.channel && !cfg.chatroomId){ setSt(0,'wpisz nick'); return; }
+    if(!OVERLAY) updateUrlBox();
+    setSt(2,'szukam kanału…');
+    loadCh(cfg.channel).then(function(info){
+      if(!info.chatroomId){ setSt(0,'brak chatroom ID — wpisz ręcznie'); return; }
+      connect(info.chatroomId, info.channelId);
+    }).catch(function(err){
+      console.error(err);
+      if(cfg.chatroomId) connect(cfg.chatroomId,'');
+      else setSt(0,'API Kick zablokowane. Wpisz chatroom ID albo otwórz przez http, nie file://');
+    });
+  }
+
+  if($('startBtn')) $('startBtn').onclick=start;
+  if($('copyBtn')) $('copyBtn').onclick=function(){
+    var c=readForm();
+    if(!c.channel) return;
+    var text=location.href.split('?')[0]+'?'+buildQuery(c,true);
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ setSt(1,'URL skopiowany'); }).catch(function(){ $('urlBox').textContent=text; });
+    } else if($('urlBox')) $('urlBox').textContent=text;
   };
-}
-async function start(){
-  cfg=Object.assign(cfg,readForm());
-  if(!cfg.channel){setSt(0,'wpisz nick');return}
-  if(!overlay){history.replaceState(null,'','?'+buildQuery(cfg,false));updateUrlBox()}
-  setSt(2,'szukam kanału '+cfg.channel+'…');
-  try{
-    const i=await loadCh(cfg.channel);
-    if(!i.chatroomId){setSt(0,'brak chatroom ID');return}
-    sock(i.chatroomId,i.channelId);
-  }catch{setSt(0,'API Kick zablokowane — daj chatroomId albo otwórz w OBS')}
-}
-$('startBtn').onclick=start;
-$('copyBtn').onclick=async()=>{
-  const c=readForm();if(!c.channel)return;
-  const text=(location.href.split('?')[0])+'?'+buildQuery(c,true);
-  try{await navigator.clipboard.writeText(text);setSt(1,'URL skopiowany')}catch{$('urlBox').textContent=text}
-};
-const DEMO=['https://files.kick.com/emotes/37226/fullsize','https://files.kick.com/emotes/1730756/fullsize'];
-$('testBtn').onclick=()=>{(pool.length?pool:DEMO).slice(0,8).forEach((u,i)=>setTimeout(()=>burst(u),i*40))};
-if(overlay&&cfg.channel)start();
+  if($('testBtn')) $('testBtn').onclick=function(){
+    (pool.length?pool:DEMO).slice(0,8).forEach(function(u,i){ setTimeout(function(){ burst(u); }, i*40); });
+  };
+
+  if(OVERLAY && (cfg.channel||cfg.chatroomId)) start();
 })();
 </script>
 </body>
