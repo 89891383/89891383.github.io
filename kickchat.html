@@ -16,127 +16,239 @@
   /* ── CONFIG MODE ── */
   html.config-mode { height: 100%; }
   html.config-mode body {
-    height: 100%; background: #0c0c10; color: #e2e2e8;
+    height: 100%; background: #0a0a0f; color: #e2e2e8;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     display: flex; overflow: hidden;
   }
 
-  /* Sidebar */
+  /* ── Sidebar ── */
   #sidebar {
-    width: 340px; min-width: 340px; height: 100vh; overflow-y: auto;
-    background: #14141a; border-right: 1px solid rgba(255,255,255,0.08);
-    padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;
+    width: 420px; min-width: 420px; max-width: 420px;
+    height: 100vh; background: #101015;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column;
   }
-  #sidebar::-webkit-scrollbar { width: 6px; }
-  #sidebar::-webkit-scrollbar-track { background: transparent; }
-  #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
 
-  #sidebar h1 {
-    font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
-    color: #fff; margin: 0;
+  /* Sidebar header (sticky at top) */
+  #sidebar-header {
+    padding: 20px 22px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex: 0 0 auto;
   }
-  #sidebar .subtitle { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  #sidebar-header h1 {
+    font-size: 18px; font-weight: 800; letter-spacing: -0.02em;
+    color: #fff; display: flex; align-items: center; gap: 8px;
+  }
+  #sidebar-header h1::before {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: #53FC18; box-shadow: 0 0 10px rgba(83,252,24,0.6);
+  }
+  #sidebar-header .subtitle { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 4px; }
 
+  /* Tab bar */
+  #tab-bar {
+    display: flex; padding: 0 12px; gap: 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: #0d0d12; flex: 0 0 auto; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  #tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none; border: none; color: rgba(255,255,255,0.4);
+    padding: 12px 12px; font-size: 12px; font-weight: 600;
+    font-family: inherit; cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.75); }
+  .tab-btn.active { color: #fff; border-bottom-color: #53FC18; }
+
+  /* Tab panels */
+  #tab-content {
+    flex: 1; overflow-y: auto; padding: 20px 22px 24px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  #tab-content::-webkit-scrollbar { width: 8px; }
+  #tab-content::-webkit-scrollbar-track { background: transparent; }
+  #tab-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  #tab-content::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+  .tab-panel { display: none; flex-direction: column; gap: 18px; }
+  .tab-panel.active { display: flex; }
+
+  /* URL footer (sticky at bottom) */
+  #sidebar-footer {
+    padding: 14px 22px 18px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: #0d0d12; flex: 0 0 auto;
+  }
+
+  /* ── Form primitives ── */
   .cfg-group { display: flex; flex-direction: column; gap: 6px; }
   .cfg-group label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: rgba(255,255,255,0.5);
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: rgba(255,255,255,0.45);
   }
+  .cfg-group .hint { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 400; text-transform: none; letter-spacing: 0; }
 
   .cfg-group input[type="text"],
   .cfg-group input[type="number"],
   .cfg-group select {
-    background: #1e1e28; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 10px 12px; color: #fff;
-    font-size: 14px; font-family: inherit; outline: none;
-    transition: border-color 0.15s;
+    background: #17171f; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 9px 11px; color: #fff;
+    font-size: 13px; font-family: inherit; outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
   }
+  .cfg-group input:hover, .cfg-group select:hover { background: #1c1c26; }
   .cfg-group input:focus, .cfg-group select:focus {
-    border-color: #53FC18;
+    border-color: #53FC18; background: #17171f;
   }
 
   .cfg-row { display: flex; gap: 8px; }
-  .cfg-row > * { flex: 1; }
+  .cfg-row > * { flex: 1; min-width: 0; }
 
-  /* Pill selector (like the multichat Small/Medium/Large) */
-  .pill-group { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-  .pill-group button {
-    flex: 1; padding: 8px 0; font-size: 13px; font-weight: 600;
-    background: #1e1e28; color: rgba(255,255,255,0.6); border: none;
-    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  /* Section titles inside a panel */
+  .section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: rgba(255,255,255,0.35);
+    padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-top: 6px;
   }
-  .pill-group button.active { background: #5b4fff; color: #fff; }
-  .pill-group button:hover:not(.active) { background: #26263a; }
+  .section-title:first-child { margin-top: 0; }
+
+  /* Pill selector */
+  .pill-group {
+    display: flex; border-radius: 8px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08); background: #17171f;
+  }
+  .pill-group button {
+    flex: 1; padding: 8px 4px; font-size: 12px; font-weight: 600;
+    background: transparent; color: rgba(255,255,255,0.55); border: none;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+    min-width: 0;
+  }
+  .pill-group button.active { background: #53FC18; color: #000; }
+  .pill-group button:hover:not(.active) { background: rgba(255,255,255,0.05); color: #fff; }
 
   /* Toggle */
   .toggle-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 4px 0;
+    padding: 4px 0; gap: 12px;
   }
-  .toggle-row span { font-size: 13px; color: rgba(255,255,255,0.75); }
+  .toggle-row span { font-size: 13px; color: rgba(255,255,255,0.8); }
   .toggle {
-    width: 40px; height: 22px; border-radius: 11px;
-    background: #2a2a3a; cursor: pointer; position: relative;
-    transition: background 0.2s; border: none; padding: 0;
+    width: 38px; height: 22px; border-radius: 11px;
+    background: #23232f; cursor: pointer; position: relative;
+    transition: background 0.2s; border: none; padding: 0; flex: 0 0 auto;
   }
   .toggle::after {
     content: ''; position: absolute; top: 3px; left: 3px;
     width: 16px; height: 16px; border-radius: 50%;
-    background: #666; transition: all 0.2s;
+    background: #555; transition: all 0.2s;
   }
   .toggle.on { background: #53FC18; }
-  .toggle.on::after { left: 21px; background: #fff; }
+  .toggle.on::after { left: 19px; background: #000; }
 
-  /* Color input row */
+  /* Slider (range) */
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  .slider-row input[type="range"] {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 4px; background: #23232f; border-radius: 2px; outline: none;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #53FC18; cursor: pointer; border: none;
+  }
+  .slider-row input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #53FC18; cursor: pointer; border: none;
+  }
+  .slider-row .slider-val {
+    min-width: 42px; text-align: right;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.75);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Color row */
   .color-row { display: flex; gap: 8px; align-items: center; }
   .color-row input[type="color"] {
-    width: 40px; height: 38px; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; background: #1e1e28; cursor: pointer; padding: 4px;
+    width: 40px; height: 36px; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; background: #17171f; cursor: pointer; padding: 3px;
+    flex: 0 0 auto;
   }
   .color-row input[type="text"] { flex: 1; }
 
-  /* Divider */
-  .divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 4px 0; }
-
   /* URL bar + copy */
   #url-bar {
-    background: #1e1e28; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 8px;
+    background: #17171f; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; gap: 8px;
   }
   #url-bar input {
     flex: 1; background: none; border: none; color: #8888aa;
-    font-size: 12px; font-family: 'Roboto Mono', monospace; outline: none;
-    overflow: hidden; text-overflow: ellipsis;
+    font-size: 11px; font-family: 'Roboto Mono', monospace; outline: none;
+    overflow: hidden; text-overflow: ellipsis; padding: 4px 0;
+    min-width: 0;
   }
   #copy-btn {
     background: #53FC18; color: #000; border: none; border-radius: 6px;
-    padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+    padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer;
     font-family: inherit; white-space: nowrap; transition: opacity 0.15s;
   }
   #copy-btn:hover { opacity: 0.85; }
 
   /* Connect button */
   #connect-btn {
-    background: #5b4fff; color: #fff; border: none; border-radius: 10px;
-    padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
+    background: #53FC18; color: #000; border: none; border-radius: 10px;
+    padding: 11px; font-size: 13px; font-weight: 800; cursor: pointer;
     font-family: inherit; transition: opacity 0.15s; width: 100%;
+    letter-spacing: 0.02em;
   }
-  #connect-btn:hover { opacity: 0.85; }
-  #connect-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  #status-text { font-size: 12px; color: rgba(255,255,255,0.4); text-align: center; min-height: 16px; }
+  #connect-btn:hover { opacity: 0.88; }
+  #connect-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  #status-text {
+    font-size: 11px; color: rgba(255,255,255,0.45);
+    text-align: center; min-height: 14px; margin-top: 6px;
+  }
 
-  /* Preview area */
+  /* ── Preview area (right side) ── */
   #preview-area {
-    flex: 1; position: relative; overflow: hidden;
-    background-image: repeating-conic-gradient(#1a1a22 0% 25%, #111118 0% 50%);
-    background-size: 24px 24px;
+    flex: 1; min-width: 0; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px; overflow: hidden;
+    background: #0a0a0f;
   }
-  #preview-area.has-bg { background-image: none; }
+  #preview-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: rgba(255,255,255,0.3);
+    margin-bottom: 12px;
+  }
+  #preview-frame {
+    width: 100%; max-width: 640px; height: 100%; max-height: 560px;
+    position: relative; overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background-image:
+      linear-gradient(45deg, #1a1a22 25%, transparent 25%),
+      linear-gradient(-45deg, #1a1a22 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #1a1a22 75%),
+      linear-gradient(-45deg, transparent 75%, #1a1a22 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    background-color: #111118;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  #preview-frame.has-bg { background-image: none; }
+  #preview-meta {
+    font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.25);
+    margin-top: 10px; letter-spacing: 0.06em;
+  }
 
   /* Chat container — shared between modes */
-  #chat_container {
+  html.overlay-mode #chat_container,
+  #preview-frame #chat_container {
     width: calc(100% - 20px); padding: 10px;
-    position: absolute; bottom: 0; overflow: hidden;
+    position: absolute; bottom: 0; left: 0; overflow: hidden;
     background: transparent; word-break: break-word;
   }
 
@@ -164,10 +276,11 @@
   .source-icon { display: inline-flex; vertical-align: -0.1em; margin-right: 0.4em; }
   .source-dot { display: inline-block; border-radius: 9999px; margin-right: 0.4em; vertical-align: middle; }
 
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     html.config-mode body { flex-direction: column; }
-    #sidebar { width: 100%; min-width: 0; height: auto; max-height: 50vh; }
-    #preview-area { min-height: 50vh; }
+    #sidebar { width: 100%; min-width: 0; max-width: 100%; height: 55vh; }
+    #preview-area { min-height: 45vh; padding: 16px; }
+    #preview-frame { max-height: none; }
   }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -362,20 +475,21 @@ function parseKickEmotes(content) {
 function getMsgShadow(s) { const a={small:0.4,medium:0.7,large:1}; const o=a[s]??0; return o?`drop-shadow(2px 2px 3px rgba(0,0,0,${o}))`:''; }
 function getStroke(s) { const w={thin:1,medium:2,thick:3,thicker:4}; const px=w[s]??0; return px?`${px}px ${px}px 0 black,-${px}px ${px}px 0 black,${px}px -${px}px 0 black,-${px}px -${px}px 0 black`:''; }
 
+const _loadedFontHrefs = new Set();
+function injectFontLink(href) {
+  if (_loadedFontHrefs.has(href)) return;
+  _loadedFontHrefs.add(href);
+  const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href;
+  document.head.appendChild(link);
+}
 function loadGoogleFont(preset, googleFont) {
   if (googleFont) {
     const spec = googleFont.replace(/ /g,'+');
-    const link = document.createElement('link'); link.rel='stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${spec}:wght@400;700;800&display=swap`;
-    document.head.appendChild(link);
+    injectFontLink(`https://fonts.googleapis.com/css2?family=${spec}:wght@100..900&display=swap`);
     return `'${googleFont}','Open Sans',Arial,system-ui,sans-serif`;
   }
   const spec = FONT_SPECS[preset];
-  if (spec) {
-    const link = document.createElement('link'); link.rel='stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${spec}&display=swap`;
-    document.head.appendChild(link);
-  }
+  if (spec) injectFontLink(`https://fonts.googleapis.com/css2?family=${spec}&display=swap`);
   return FONT_FAMILIES[preset] || FONT_FAMILIES.opensans;
 }
 
@@ -417,11 +531,21 @@ class ChatEngine {
     const c = this.container;
     const ff = loadGoogleFont(this.cfg.font, this.cfg.googleFont);
     c.style.color = this.cfg.fontColor || 'white';
-    c.style.fontWeight = this.cfg.msgBold ? 800 : 400;
+    c.style.fontWeight = this.cfg.msgWeight || 400;
     c.style.fontFamily = ff;
     c.style.fontSize = this.sz.fontSize;
     c.style.textTransform = this.cfg.msgCaps ? 'uppercase' : '';
     c.style.textShadow = getStroke(this.cfg.stroke) || '';
+    // Preload nick font too (if custom) — same loader (idempotent link injection)
+    if (this.cfg.nickFont || this.cfg.nickGoogleFont) {
+      loadGoogleFont(this.cfg.nickFont, this.cfg.nickGoogleFont);
+    }
+  }
+  get nickFontFamily() {
+    if (this.cfg.nickGoogleFont || this.cfg.nickFont) {
+      return loadGoogleFont(this.cfg.nickFont, this.cfg.nickGoogleFont);
+    }
+    return null; // inherit from container
   }
 
   updateConfig(cfg) {
@@ -528,7 +652,9 @@ class ChatEngine {
         const rText = parseKickEmotes(typeof meta.original_message.content==='string'?meta.original_message.content:'').text;
         replyHTML = `<div class="reply-preview" style="font-size:0.6em;line-height:1.35;margin-left:0.35em;padding-left:0.45em;border-left:2px solid rgba(255,255,255,0.28)"><span>↪ </span><strong>${escapeHtml(rUser)}</strong>${rText?' '+escapeHtml(rText):''}</div>`;
       }
-      const nameBlock = this.cfg.hideNames?'':`<span style="display:inline">${this.renderBadges(rawMsg)}<span style="color:${color};font-weight:800">${escapeHtml(username)}</span><span style="margin-right:${this.sz.colonMR}">:</span></span>`;
+      const nickFam = this.nickFontFamily;
+      const nickStyle = `color:${color};font-weight:${this.cfg.nickWeight||800}` + (nickFam ? `;font-family:${nickFam}` : '');
+      const nameBlock = this.cfg.hideNames?'':`<span style="display:inline">${this.renderBadges(rawMsg)}<span style="${nickStyle}">${escapeHtml(username)}</span><span style="margin-right:${this.sz.colonMR}">:</span></span>`;
       inner.innerHTML = `${replyHTML}<div style="line-height:${this.sz.lineHeight};word-break:break-word">${this.renderSourceTag()}${nameBlock}<span class="msg-body">${this.renderBody(text,emotes)}</span></div>`;
     }
     row.appendChild(inner);
@@ -652,12 +778,15 @@ if (isOverlayMode) {
   const cfg = {
     font: params.get('font')||'opensans',
     googleFont: params.get('googleFont')||'',
+    nickFont: params.get('nickFont')||'',
+    nickGoogleFont: params.get('nickGoogleFont')||'',
+    nickWeight: parseInt(params.get('nickWeight')||'800',10)||800,
+    msgWeight: parseInt(params.get('msgWeight')||'400',10)||400,
     textSize: params.get('textSize')||'small',
     fontSize: params.get('fontSize')||'',
     textShadow: params.get('textShadow')||'large',
     stroke: params.get('stroke')||'none',
     fontColor: /^[0-9a-fA-F]{6}$/.test(params.get('fontColor')||'')?'#'+params.get('fontColor'):'',
-    msgBold: params.get('msgBold')!=='false',
     msgCaps: params.get('msgCaps')==='true',
     hideNames: params.get('hideNames')==='true',
     msgSlideIn: params.get('msgSlideIn')==='1'||params.get('msgSlideIn')==='true',
@@ -678,192 +807,256 @@ if (isOverlayMode) {
   /* ── CONFIG MODE — panel + live preview ── */
   document.documentElement.className = 'config-mode';
 
+  const FONT_OPTIONS_HTML = `
+    <optgroup label="Systemowe (bez pobierania)">
+      <option value="arial">Arial</option>
+      <option value="helvetica">Helvetica</option>
+      <option value="verdana">Verdana</option>
+      <option value="tahoma">Tahoma</option>
+      <option value="trebuchet">Trebuchet MS</option>
+      <option value="segoe">Segoe UI</option>
+      <option value="calibri">Calibri</option>
+      <option value="candara">Candara</option>
+      <option value="times">Times New Roman</option>
+      <option value="georgia">Georgia</option>
+      <option value="garamond">Garamond</option>
+      <option value="palatino">Palatino</option>
+      <option value="cambria">Cambria</option>
+      <option value="courier">Courier New</option>
+      <option value="consolas">Consolas</option>
+      <option value="impact">Impact</option>
+      <option value="comic">Comic Sans MS</option>
+      <option value="brush">Brush Script</option>
+      <option value="lucida">Lucida Sans</option>
+      <option value="copperplate">Copperplate</option>
+    </optgroup>
+    <optgroup label="Google Fonts — sans-serif">
+      <option value="opensans">Open Sans</option>
+      <option value="inter">Inter</option>
+      <option value="roboto">Roboto</option>
+      <option value="robotocondensed">Roboto Condensed</option>
+      <option value="lato">Lato</option>
+      <option value="poppins">Poppins</option>
+      <option value="montserrat">Montserrat</option>
+      <option value="nunito">Nunito</option>
+      <option value="oswald">Oswald</option>
+      <option value="bebas">Bebas Neue</option>
+      <option value="raleway">Raleway</option>
+      <option value="ptsans">PT Sans</option>
+      <option value="ubuntu">Ubuntu</option>
+      <option value="worksans">Work Sans</option>
+      <option value="fira">Fira Sans</option>
+      <option value="noto">Noto Sans JP</option>
+      <option value="baloo">Baloo Tammudu</option>
+    </optgroup>
+    <optgroup label="Google Fonts — monospace">
+      <option value="sourcecode">Source Code Pro</option>
+      <option value="jetbrains">JetBrains Mono</option>
+    </optgroup>
+    <optgroup label="Google Fonts — display / handwriting">
+      <option value="comfortaa">Comfortaa</option>
+      <option value="dancing">Dancing Script</option>
+      <option value="indieflower">Indie Flower</option>
+      <option value="pacifico">Pacifico</option>
+      <option value="permanent">Permanent Marker</option>
+      <option value="press">Press Start 2P</option>
+    </optgroup>`;
+
   document.body.innerHTML = `
   <div id="sidebar">
-    <div>
+
+    <div id="sidebar-header">
       <h1>Kick Chat Overlay</h1>
       <div class="subtitle">Konfiguruj i podglądaj na żywo</div>
     </div>
 
-    <div class="cfg-group">
-      <label>Kanał Kick</label>
-      <input type="text" id="cfg-channel" placeholder="np. xqc, adam_grabowiecki...">
+    <div id="tab-bar">
+      <button class="tab-btn active" data-tab="channel">Kanał</button>
+      <button class="tab-btn" data-tab="text">Tekst</button>
+      <button class="tab-btn" data-tab="nick">Nick</button>
+      <button class="tab-btn" data-tab="fx">Efekty</button>
+      <button class="tab-btn" data-tab="filters">Filtry</button>
     </div>
 
-    <button id="connect-btn">Połącz</button>
-    <div id="status-text"></div>
+    <div id="tab-content">
 
-    <hr class="divider">
+      <!-- ── TAB: KANAŁ ── -->
+      <div class="tab-panel active" data-tab="channel">
+        <div class="cfg-group">
+          <label>Kanał Kick</label>
+          <input type="text" id="cfg-channel" placeholder="np. adam_grabowiecki, xqc...">
+        </div>
+        <button id="connect-btn">Połącz</button>
+        <div id="status-text"></div>
 
-    <div class="cfg-group">
-      <label>Rozmiar tekstu</label>
-      <div class="pill-group" id="cfg-textSize">
-        <button data-val="small" class="active">Small</button>
-        <button data-val="medium">Medium</button>
-        <button data-val="large">Large</button>
+        <div class="section-title">Wygląd panelu</div>
+        <div class="cfg-group">
+          <label>Kolor tła overlay <span class="hint">(puste = przezroczyste)</span></label>
+          <div class="color-row">
+            <input type="color" id="cfg-bgColorPick" value="#000000">
+            <input type="text" id="cfg-bgColor" placeholder="puste = transparent" maxlength="6">
+          </div>
+        </div>
       </div>
+
+      <!-- ── TAB: TEKST ── -->
+      <div class="tab-panel" data-tab="text">
+        <div class="cfg-group">
+          <label>Rozmiar tekstu (preset)</label>
+          <div class="pill-group" id="cfg-textSize">
+            <button data-val="small" class="active">Small</button>
+            <button data-val="medium">Medium</button>
+            <button data-val="large">Large</button>
+          </div>
+        </div>
+
+        <div class="cfg-group">
+          <label>Font Size (px) <span class="hint">— nadpisuje preset</span></label>
+          <input type="number" id="cfg-fontSize" min="8" max="200" placeholder="np. 24">
+        </div>
+
+        <div class="cfg-group">
+          <label>Font wiadomości</label>
+          <select id="cfg-font">${FONT_OPTIONS_HTML}</select>
+        </div>
+
+        <div class="cfg-group">
+          <label>Google Font <span class="hint">(nadpisuje powyższy)</span></label>
+          <input type="text" id="cfg-googleFont" placeholder="np. Inter, Poppins, Montserrat...">
+        </div>
+
+        <div class="cfg-group">
+          <label>Waga tekstu wiadomości</label>
+          <div class="slider-row">
+            <input type="range" id="cfg-msgWeight" min="100" max="900" step="100" value="400">
+            <span class="slider-val" id="cfg-msgWeight-val">400</span>
+          </div>
+        </div>
+
+        <div class="section-title">Efekty czcionki</div>
+
+        <div class="cfg-row">
+          <div class="cfg-group">
+            <label>Cień</label>
+            <select id="cfg-textShadow">
+              <option value="none">Brak</option>
+              <option value="small">Mały</option>
+              <option value="medium">Średni</option>
+              <option value="large" selected>Duży</option>
+            </select>
+          </div>
+          <div class="cfg-group">
+            <label>Obrys</label>
+            <select id="cfg-stroke">
+              <option value="none" selected>Brak</option>
+              <option value="thin">Cienki</option>
+              <option value="medium">Średni</option>
+              <option value="thick">Gruby</option>
+              <option value="thicker">Najgrubszy</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cfg-group">
+          <label>Kolor czcionki</label>
+          <div class="color-row">
+            <input type="color" id="cfg-fontColorPick" value="#ffffff">
+            <input type="text" id="cfg-fontColor" placeholder="ffffff" maxlength="6">
+          </div>
+        </div>
+
+        <div class="toggle-row"><span>CAPS LOCK</span><button class="toggle" id="cfg-msgCaps"></button></div>
+      </div>
+
+      <!-- ── TAB: NICK ── -->
+      <div class="tab-panel" data-tab="nick">
+        <div class="cfg-group">
+          <label>Font nazwy widza <span class="hint">— „—” = ten sam co wiadomości</span></label>
+          <select id="cfg-nickFont">
+            <option value="">— ten sam co wiadomości —</option>
+            ${FONT_OPTIONS_HTML}
+          </select>
+        </div>
+
+        <div class="cfg-group">
+          <label>Google Font dla nicka <span class="hint">(nadpisuje powyższy)</span></label>
+          <input type="text" id="cfg-nickGoogleFont" placeholder="np. Bebas Neue, Oswald...">
+        </div>
+
+        <div class="cfg-group">
+          <label>Waga nazwy widza</label>
+          <div class="slider-row">
+            <input type="range" id="cfg-nickWeight" min="100" max="900" step="100" value="800">
+            <span class="slider-val" id="cfg-nickWeight-val">800</span>
+          </div>
+        </div>
+
+        <div class="toggle-row"><span>Ukryj nicki widzów</span><button class="toggle" id="cfg-hideNames"></button></div>
+      </div>
+
+      <!-- ── TAB: EFEKTY ── -->
+      <div class="tab-panel" data-tab="fx">
+        <div class="cfg-row">
+          <div class="cfg-group">
+            <label>Fade (sekundy)</label>
+            <input type="number" id="cfg-fade" placeholder="np. 30" min="0">
+          </div>
+          <div class="cfg-group">
+            <label>Skala emotek</label>
+            <input type="number" id="cfg-emoteScale" value="1" min="0.5" max="3" step="0.1">
+          </div>
+        </div>
+
+        <div class="cfg-group">
+          <label>Source Tag <span class="hint">— znacznik przy nicku</span></label>
+          <div class="pill-group" id="cfg-sourceTag">
+            <button data-val="none" class="active">Brak</button>
+            <button data-val="dot">Kropka</button>
+            <button data-val="icon">Ikona</button>
+            <button data-val="label">Label</button>
+          </div>
+        </div>
+
+        <div class="toggle-row"><span>Slide-in animacja</span><button class="toggle" id="cfg-msgSlideIn"></button></div>
+        <div class="toggle-row"><span>Wiadomości systemowe</span><button class="toggle on" id="cfg-showSystem"></button></div>
+      </div>
+
+      <!-- ── TAB: FILTRY ── -->
+      <div class="tab-panel" data-tab="filters">
+        <div class="cfg-group">
+          <label>Blacklist userów <span class="hint">(po przecinku)</span></label>
+          <input type="text" id="cfg-userBL" placeholder="user1, user2...">
+        </div>
+        <div class="cfg-group">
+          <label>Blacklist botów <span class="hint">(po przecinku)</span></label>
+          <input type="text" id="cfg-botNames" placeholder="nightbot, streamelements...">
+        </div>
+        <div class="cfg-group">
+          <label>Blacklist prefiksów <span class="hint">— ukryj komendy zaczynające się od...</span></label>
+          <input type="text" id="cfg-prefixBL" placeholder="!, ?, /...">
+        </div>
+      </div>
+
     </div>
 
-    <div class="cfg-group">
-      <label>Font Size (px) <span style="font-weight:400;color:rgba(255,255,255,0.35)">— nadpisuje preset</span></label>
-      <input type="number" id="cfg-fontSize" class="text-input" min="8" max="200" placeholder="np. 24">
-    </div>
-
-    <div class="cfg-group">
-      <label>Font</label>
-      <select id="cfg-font">
-        <optgroup label="Systemowe (bez pobierania)">
-          <option value="arial">Arial</option>
-          <option value="helvetica">Helvetica</option>
-          <option value="verdana">Verdana</option>
-          <option value="tahoma">Tahoma</option>
-          <option value="trebuchet">Trebuchet MS</option>
-          <option value="segoe">Segoe UI</option>
-          <option value="calibri">Calibri</option>
-          <option value="candara">Candara</option>
-          <option value="times">Times New Roman</option>
-          <option value="georgia">Georgia</option>
-          <option value="garamond">Garamond</option>
-          <option value="palatino">Palatino</option>
-          <option value="cambria">Cambria</option>
-          <option value="courier">Courier New</option>
-          <option value="consolas">Consolas</option>
-          <option value="impact">Impact</option>
-          <option value="comic">Comic Sans MS</option>
-          <option value="brush">Brush Script</option>
-          <option value="lucida">Lucida Sans</option>
-          <option value="copperplate">Copperplate</option>
-        </optgroup>
-        <optgroup label="Google Fonts — sans-serif">
-          <option value="opensans">Open Sans</option>
-          <option value="inter">Inter</option>
-          <option value="roboto">Roboto</option>
-          <option value="robotocondensed">Roboto Condensed</option>
-          <option value="lato">Lato</option>
-          <option value="poppins">Poppins</option>
-          <option value="montserrat">Montserrat</option>
-          <option value="nunito">Nunito</option>
-          <option value="oswald">Oswald</option>
-          <option value="bebas">Bebas Neue</option>
-          <option value="raleway">Raleway</option>
-          <option value="ptsans">PT Sans</option>
-          <option value="ubuntu">Ubuntu</option>
-          <option value="worksans">Work Sans</option>
-          <option value="fira">Fira Sans</option>
-          <option value="noto">Noto Sans JP</option>
-          <option value="baloo">Baloo Tammudu</option>
-        </optgroup>
-        <optgroup label="Google Fonts — monospace">
-          <option value="sourcecode">Source Code Pro</option>
-          <option value="jetbrains">JetBrains Mono</option>
-        </optgroup>
-        <optgroup label="Google Fonts — display / handwriting">
-          <option value="comfortaa">Comfortaa</option>
-          <option value="dancing">Dancing Script</option>
-          <option value="indieflower">Indie Flower</option>
-          <option value="pacifico">Pacifico</option>
-          <option value="permanent">Permanent Marker</option>
-          <option value="press">Press Start 2P</option>
-        </optgroup>
-      </select>
-    </div>
-
-    <div class="cfg-group">
-      <label>Google Font (nadpisuje powyższy)</label>
-      <input type="text" id="cfg-googleFont" placeholder="np. Inter, Poppins, Montserrat...">
-    </div>
-
-    <div class="cfg-row">
+    <div id="sidebar-footer">
       <div class="cfg-group">
-        <label>Cień tekstu</label>
-        <select id="cfg-textShadow">
-          <option value="none">Brak</option>
-          <option value="small">Mały</option>
-          <option value="medium">Średni</option>
-          <option value="large" selected>Duży</option>
-        </select>
-      </div>
-      <div class="cfg-group">
-        <label>Obrys (stroke)</label>
-        <select id="cfg-stroke">
-          <option value="none" selected>Brak</option>
-          <option value="thin">Cienki</option>
-          <option value="medium">Średni</option>
-          <option value="thick">Gruby</option>
-          <option value="thicker">Najgrubszy</option>
-        </select>
+        <label>Link do overlay <span class="hint">— wklej w OBS → Browser Source</span></label>
+        <div id="url-bar">
+          <input type="text" id="url-output" readonly>
+          <button id="copy-btn">Kopiuj</button>
+        </div>
       </div>
     </div>
 
-    <div class="cfg-group">
-      <label>Source Tag</label>
-      <div class="pill-group" id="cfg-sourceTag">
-        <button data-val="none" class="active">Brak</button>
-        <button data-val="dot">Kropka</button>
-        <button data-val="icon">Ikona</button>
-        <button data-val="label">Label</button>
-      </div>
-    </div>
-
-    <div class="cfg-row">
-      <div class="cfg-group">
-        <label>Fade (sekundy)</label>
-        <input type="number" id="cfg-fade" placeholder="np. 30" min="0">
-      </div>
-      <div class="cfg-group">
-        <label>Skala emotek</label>
-        <input type="number" id="cfg-emoteScale" value="1" min="0.5" max="3" step="0.1">
-      </div>
-    </div>
-
-    <div class="cfg-group">
-      <label>Kolor czcionki</label>
-      <div class="color-row">
-        <input type="color" id="cfg-fontColorPick" value="#ffffff">
-        <input type="text" id="cfg-fontColor" placeholder="ffffff" maxlength="6">
-      </div>
-    </div>
-
-    <div class="cfg-group">
-      <label>Kolor tła (puste = przezroczyste)</label>
-      <div class="color-row">
-        <input type="color" id="cfg-bgColorPick" value="#000000">
-        <input type="text" id="cfg-bgColor" placeholder="puste = transparent" maxlength="6">
-      </div>
-    </div>
-
-    <div class="toggle-row"><span>Pogrubiony tekst</span><button class="toggle on" id="cfg-msgBold"></button></div>
-    <div class="toggle-row"><span>CAPS LOCK</span><button class="toggle" id="cfg-msgCaps"></button></div>
-    <div class="toggle-row"><span>Ukryj nazwy</span><button class="toggle" id="cfg-hideNames"></button></div>
-    <div class="toggle-row"><span>Slide-in animacja</span><button class="toggle" id="cfg-msgSlideIn"></button></div>
-    <div class="toggle-row"><span>Wiadomości systemowe</span><button class="toggle on" id="cfg-showSystem"></button></div>
-
-    <div class="cfg-group">
-      <label>Blacklist userów (po przecinku)</label>
-      <input type="text" id="cfg-userBL" placeholder="bot1, bot2...">
-    </div>
-    <div class="cfg-group">
-      <label>Blacklist botów (po przecinku)</label>
-      <input type="text" id="cfg-botNames" placeholder="nightbot, streamelements...">
-    </div>
-    <div class="cfg-group">
-      <label>Blacklist prefiksów (po przecinku)</label>
-      <input type="text" id="cfg-prefixBL" placeholder="!, ?...">
-    </div>
-
-    <hr class="divider">
-
-    <div class="cfg-group">
-      <label>Link do overlay (wklej w OBS → Browser Source)</label>
-      <div id="url-bar">
-        <input type="text" id="url-output" readonly>
-        <button id="copy-btn">Kopiuj</button>
-      </div>
-    </div>
   </div>
 
   <div id="preview-area">
-    <div id="chat_container"></div>
+    <div id="preview-label">Podgląd na żywo</div>
+    <div id="preview-frame">
+      <div id="chat_container"></div>
+    </div>
+    <div id="preview-meta">Szachownica = przezroczystość w OBS</div>
   </div>`;
 
   /* ── State ── */
@@ -871,6 +1064,10 @@ if (isOverlayMode) {
     channel: '',
     font: 'opensans',
     googleFont: '',
+    nickFont: '',
+    nickGoogleFont: '',
+    nickWeight: 800,
+    msgWeight: 400,
     textSize: 'small',
     fontSize: '',
     textShadow: 'large',
@@ -878,7 +1075,6 @@ if (isOverlayMode) {
     sourceTag: 'none',
     fontColor: '',
     bgColor: '',
-    msgBold: true,
     msgCaps: false,
     hideNames: false,
     msgSlideIn: false,
@@ -911,12 +1107,21 @@ if (isOverlayMode) {
     });
   });
 
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.tab === target));
+    });
+  });
+
   // Toggles
   document.querySelectorAll('.toggle').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.classList.toggle('on');
       const map = {
-        'cfg-msgBold':'msgBold','cfg-msgCaps':'msgCaps',
+        'cfg-msgCaps':'msgCaps',
         'cfg-hideNames':'hideNames','cfg-msgSlideIn':'msgSlideIn',
         'cfg-showSystem':'showSystemMsgs',
       };
@@ -928,10 +1133,24 @@ if (isOverlayMode) {
   // Font size px
   $('cfg-fontSize').addEventListener('input', e => { state.fontSize = e.target.value; engine.updateConfig(state); updateURL(); });
 
-  // Selects
+  // Font selects
   $('cfg-font').addEventListener('change', e => { state.font = e.target.value; engine.updateConfig(state); updateURL(); });
+  $('cfg-nickFont').addEventListener('change', e => { state.nickFont = e.target.value; engine.updateConfig(state); updateURL(); });
+  $('cfg-nickGoogleFont').addEventListener('input', e => { state.nickGoogleFont = e.target.value.trim(); engine.updateConfig(state); updateURL(); });
   $('cfg-textShadow').addEventListener('change', e => { state.textShadow = e.target.value; engine.updateConfig(state); updateURL(); });
   $('cfg-stroke').addEventListener('change', e => { state.stroke = e.target.value; engine.updateConfig(state); updateURL(); });
+
+  // Weight sliders
+  $('cfg-msgWeight').addEventListener('input', e => {
+    state.msgWeight = parseInt(e.target.value,10)||400;
+    $('cfg-msgWeight-val').textContent = state.msgWeight;
+    engine.updateConfig(state); updateURL();
+  });
+  $('cfg-nickWeight').addEventListener('input', e => {
+    state.nickWeight = parseInt(e.target.value,10)||800;
+    $('cfg-nickWeight-val').textContent = state.nickWeight;
+    engine.updateConfig(state); updateURL();
+  });
 
   // Text inputs
   $('cfg-googleFont').addEventListener('input', e => { state.googleFont = e.target.value.trim(); engine.updateConfig(state); updateURL(); });
@@ -975,13 +1194,13 @@ if (isOverlayMode) {
   $('cfg-prefixBL').addEventListener('input', e => { state.prefixBL=e.target.value.toLowerCase().split(',').map(s=>s.trim()).filter(Boolean); updateURL(); });
 
   function applyPreviewBg() {
-    const area = $('preview-area');
+    const frame = $('preview-frame');
     if (state.bgColor) {
-      area.classList.add('has-bg');
-      area.style.background = state.bgColor;
+      frame.classList.add('has-bg');
+      frame.style.background = state.bgColor;
     } else {
-      area.classList.remove('has-bg');
-      area.style.background = '';
+      frame.classList.remove('has-bg');
+      frame.style.background = '';
     }
   }
 
@@ -992,6 +1211,10 @@ if (isOverlayMode) {
     p.set('kick', ch);
     if (state.font !== 'opensans') p.set('font', state.font);
     if (state.googleFont) p.set('googleFont', state.googleFont);
+    if (state.nickFont) p.set('nickFont', state.nickFont);
+    if (state.nickGoogleFont) p.set('nickGoogleFont', state.nickGoogleFont);
+    if (state.nickWeight !== 800) p.set('nickWeight', String(state.nickWeight));
+    if (state.msgWeight !== 400) p.set('msgWeight', String(state.msgWeight));
     if (state.textSize !== 'small') p.set('textSize', state.textSize);
     if (state.fontSize) p.set('fontSize', state.fontSize);
     if (state.textShadow !== 'large') p.set('textShadow', state.textShadow);
@@ -999,7 +1222,6 @@ if (isOverlayMode) {
     if (state.sourceTag !== 'none') p.set('sourceTag', state.sourceTag);
     if (state.fontColor) p.set('fontColor', state.fontColor.replace('#',''));
     if (state.bgColor) p.set('bgColor', state.bgColor.replace('#',''));
-    if (!state.msgBold) p.set('msgBold','false');
     if (state.msgCaps) p.set('msgCaps','true');
     if (state.hideNames) p.set('hideNames','true');
     if (state.msgSlideIn) p.set('msgSlideIn','1');
