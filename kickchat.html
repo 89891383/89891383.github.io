@@ -247,13 +247,13 @@
   /* Chat container — shared between modes */
   html.overlay-mode #chat_container,
   #preview-frame #chat_container {
-    width: calc(100% - 20px); padding: 10px;
+    width: 100%; padding: 0;
     position: absolute; bottom: 0; left: 0; overflow: hidden;
     background: transparent; word-break: break-word;
   }
 
   .msg-row {
-    margin: 0 10px; display: grid; grid-template-rows: 1fr;
+    margin: 0; display: grid; grid-template-rows: 1fr;
     opacity: 1; transform: translate3d(0,0,0);
     transition: grid-template-rows 220ms cubic-bezier(0.4,0,0.2,1),
                 opacity 220ms cubic-bezier(0.4,0,0.2,1),
@@ -374,9 +374,9 @@ const FONT_SPECS = {
   press:'Press+Start+2P',
 };
 const SIZES = {
-  small:  { fontSize:'20px', lineHeight:'30px', badgeS:'16px', badgeGap:'2px', badgeMR:'3px', colonMR:'8px', emoteH:'25px', emoteW:'75px', emoteMR:'-3px' },
-  medium: { fontSize:'34px', lineHeight:'55px', badgeS:'28px', badgeGap:'4px', badgeMR:'6px', colonMR:'14px', emoteH:'42px', emoteW:'128px', emoteMR:'-6px' },
-  large:  { fontSize:'48px', lineHeight:'75px', badgeS:'40px', badgeGap:'5px', badgeMR:'8px', colonMR:'20px', emoteH:'60px', emoteW:'180px', emoteMR:'-8px' },
+  small:  { fontSize:'20px', lineHeight:'30px', badgeS:'16px', badgeGap:'2px', badgeMR:'3px', colonMR:'3px', emoteH:'25px', emoteW:'75px', emoteMR:'-3px' },
+  medium: { fontSize:'34px', lineHeight:'55px', badgeS:'28px', badgeGap:'4px', badgeMR:'6px', colonMR:'5px', emoteH:'42px', emoteW:'128px', emoteMR:'-6px' },
+  large:  { fontSize:'48px', lineHeight:'75px', badgeS:'40px', badgeGap:'5px', badgeMR:'8px', colonMR:'7px', emoteH:'60px', emoteW:'180px', emoteMR:'-8px' },
 };
 
 const KICK_BADGE_URLS = {
