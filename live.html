@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Player</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0a;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+    }
+
+    .player {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100%;
+      background: #000;
+      position: relative;
+    }
+
+    .player iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .divider {
+      flex: 0 0 5px;
+      width: 5px;
+      height: 100%;
+      background: #1a1a1a;
+      cursor: col-resize;
+      position: relative;
+      z-index: 20;
+      transition: background 0.15s;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -4px;
+      right: -4px;
+      bottom: 0;
+    }
+
+    .divider:hover,
+    .divider.active {
+      background: #3b82f6;
+    }
+
+    .divider:hover::before,
+    .divider.active::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 3px;
+      height: 40px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+    }
+
+    .chat {
+      flex: 0 0 var(--chat-w, 360px);
+      width: var(--chat-w, 360px);
+      height: 100%;
+      background: #0f0f0f;
+      position: relative;
+      min-width: 0;
+    }
+
+    .chat iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* Mobile: stack – player top, chat bottom */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .player {
+        flex: 1 1 auto;
+        width: 100%;
+        min-height: 0;
+      }
+
+      .divider {
+        flex: 0 0 5px;
+        width: 100%;
+        height: 5px;
+        cursor: row-resize;
+      }
+
+      .divider::after {
+        top: -4px;
+        bottom: -4px;
+        left: 0;
+        right: 0;
+      }
+
+      .divider:hover::before,
+      .divider.active::before {
+        width: 40px;
+        height: 3px;
+      }
+
+      .chat {
+        flex: 0 0 var(--chat-h, 40%);
+        width: 100%;
+        height: var(--chat-h, 40%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout" id="layout">
+    <div class="player" id="player">
+      <iframe
+        src="https://ok.ru/videoembed/16315266244202?nochat=1&autoplay=1"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+
+    <div class="divider" id="divider" title="Przeciągnij, aby zmienić szerokość"></div>
+
+    <div class="chat" id="chat">
+      <iframe
+        src="https://chat.kick.cx/embed/trazer"
+        allow="clipboard-write"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const layout = document.getElementById("layout");
+      const divider = document.getElementById("divider");
+      const chat = document.getElementById("chat");
+
+      const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
+      let dragging = false;
+
+      function clamp(val, min, max) {
+        return Math.min(max, Math.max(min, val));
+      }
+
+      function applyDesktop(clientX) {
+        const rect = layout.getBoundingClientRect();
+        const total = rect.width;
+        // chat width from right edge
+        let chatW = total - (clientX - rect.left);
+        chatW = clamp(chatW, 220, total * 0.55);
+        document.documentElement.style.setProperty("--chat-w", chatW + "px");
+        chat.style.flex = "0 0 " + chatW + "px";
+        chat.style.width = chatW + "px";
+        chat.style.height = "";
+      }
+
+      function applyMobile(clientY) {
+        const rect = layout.getBoundingClientRect();
+        const total = rect.height;
+        let chatH = total - (clientY - rect.top);
+        chatH = clamp(chatH, total * 0.2, total * 0.7);
+        const pct = (chatH / total) * 100;
+        document.documentElement.style.setProperty("--chat-h", pct + "%");
+        chat.style.flex = "0 0 " + pct + "%";
+        chat.style.height = pct + "%";
+        chat.style.width = "100%";
+      }
+
+      function onMove(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        const point = e.touches ? e.touches[0] : e;
+        if (isMobile()) applyMobile(point.clientY);
+        else applyDesktop(point.clientX);
+      }
+
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        divider.classList.remove("active");
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+
+      function onDown(e) {
+        dragging = true;
+        divider.classList.add("active");
+        document.body.style.cursor = isMobile() ? "row-resize" : "col-resize";
+        document.body.style.userSelect = "none";
+        e.preventDefault();
+      }
+
+      divider.addEventListener("mousedown", onDown);
+      divider.addEventListener("touchstart", onDown, { passive: false });
+      window.addEventListener("mousemove", onMove, { passive: false });
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("mouseup", onUp);
+      window.addEventListener("touchend", onUp);
+
+      // reset flex quirks on resize breakpoint change
+      window.addEventListener("resize", function () {
+        if (isMobile()) {
+          chat.style.width = "100%";
+          if (!chat.style.height) chat.style.flex = "0 0 40%";
+        } else {
+          chat.style.height = "";
+          if (!chat.style.width || chat.style.width === "100%") {
+            chat.style.flex = "0 0 360px";
+            chat.style.width = "360px";
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
