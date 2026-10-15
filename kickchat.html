@@ -734,7 +734,7 @@ class ChatEngine {
     if(kickUserId) await this.load7TV(kickUserId);
     onStatus?.('connected');
 
-    this.pusher = new Pusher('32cbd69e4b950bf97679',{cluster:'us2',disableStats:true,activityTimeout:20000,pongTimeout:8000});
+    this.pusher = new Pusher('34bf7a0ff419a2a775b9',{cluster:'us2',disableStats:true,activityTimeout:20000,pongTimeout:8000});
     const chat=this.pusher.subscribe(`chatrooms.${chatroomId}.v2`);
     chat.bind('App\\Events\\ChatMessageEvent',d=>{this.addMessage(decode(d),false);});
     chat.bind('App\\Events\\MessageDeletedEvent',d=>{const dd=decode(d);this.deleteMessage(dd.message?.id||dd.message_id);});
