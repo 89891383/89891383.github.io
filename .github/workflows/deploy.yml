@@ -1,1 +1,43 @@
+name: Deploy static content to Pages
 
+on:
+  # Uruchamia się przy każdym wypchnięciu zmian na główną gałąź (main lub master)
+  push:
+    branches: ["main", "master"]
+
+  # Pozwala na ręczne uruchomienie wdrożenia z zakładki Actions
+  workflow_dispatch:
+
+# Uprawnienia wymagane do wdrożenia na GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Zapobiega nakładaniu się kilku wdrożeń jednocześnie
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # '.' oznacza główny folder repozytorium (tam, gdzie leży index.html)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
