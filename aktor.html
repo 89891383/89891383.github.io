@@ -23,6 +23,953 @@
       --muted: #9b9bab;
       --accent: #53fc18;
       --gold: #ffb52e;
+      --discord: #5865f2;
+      --radius: 16px;
+      --gap: 10px;
+      --divider: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(83, 252, 24, 0.07), transparent 60%),
+        radial-gradient(800px 400px at 95% -10%, rgba(88, 101, 242, 0.1), transparent 60%),
+        var(--bg);
+    }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .app { display: flex; flex-direction: column; width: 100%; height: 100%; height: 100dvh; }
+
+    /* ================= TOPBAR ================= */
+    .topbar {
+      flex: 0 0 auto; display: flex; align-items: center; gap: 14px;
+      padding: 10px 14px;
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-left: max(14px, env(safe-area-inset-left));
+      padding-right: max(14px, env(safe-area-inset-right));
+      background: rgba(15, 15, 20, 0.72);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      border-bottom: 1px solid var(--line);
+      z-index: 40;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center;
+      border-radius: 12px; font-size: 18px; color: #07110a;
+      background: linear-gradient(135deg, #8dff5c 0%, #53fc18 50%, #2fc400 100%);
+      box-shadow: 0 6px 22px rgba(83, 252, 24, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
+    .brand-name { font-weight: 900; font-size: 20px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .brand-sub {
+      display: flex; align-items: center; gap: 6px; margin-top: 3px;
+      font-size: 11px; font-weight: 600; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff3b4e; animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 59, 78, 0.55); }
+      70% { box-shadow: 0 0 0 8px rgba(255, 59, 78, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 59, 78, 0); }
+    }
+
+    .spacer { flex: 1 1 auto; }
+    .actions { display: flex; align-items: center; gap: 8px; }
+    .tools { display: flex; align-items: center; gap: 6px; }
+    .sep { width: 1px; height: 24px; background: var(--line-strong); margin: 0 4px; }
+
+    .btn {
+      position: relative; overflow: hidden;
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      height: 42px; padding: 0 18px; border-radius: 12px;
+      font-weight: 700; font-size: 13.5px; letter-spacing: 0.02em; white-space: nowrap;
+      border: 1px solid var(--line-strong); background: var(--surface-2);
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .btn:hover { transform: translateY(-1px); background: var(--surface-3); }
+    .btn:active { transform: translateY(0) scale(0.97); }
+    .btn i { font-size: 15px; }
+
+    .btn-discord { background: rgba(88, 101, 242, 0.16); border-color: rgba(88, 101, 242, 0.45); color: #c9cdff; }
+    .btn-discord:hover { background: var(--discord); border-color: var(--discord); color: #fff; box-shadow: 0 8px 26px rgba(88, 101, 242, 0.4); }
+
+    .btn-kick { background: rgba(83, 252, 24, 0.1); border-color: rgba(83, 252, 24, 0.35); color: #c7ffae; }
+    .btn-kick:hover { background: var(--accent); border-color: var(--accent); color: #06130a; box-shadow: 0 8px 26px rgba(83, 252, 24, 0.35); }
+    .kick-ico {
+      width: 18px; height: 18px; display: grid; place-items: center; border-radius: 5px;
+      background: var(--accent); color: #06130a; font-weight: 900; font-size: 12px; line-height: 1;
+    }
+    .btn-kick:hover .kick-ico { background: #06130a; color: var(--accent); }
+
+    .btn-donate {
+      border: 0; color: #1a0b05; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      background: linear-gradient(120deg, #ffd35c 0%, #ffb52e 40%, #ff6b6b 100%);
+      box-shadow: 0 8px 28px rgba(255, 140, 50, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+    .btn-donate:hover { background: linear-gradient(120deg, #ffe07f 0%, #ffc04d 40%, #ff7b7b 100%); box-shadow: 0 12px 34px rgba(255, 140, 50, 0.5); }
+    .btn-donate::after {
+      content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transform: skewX(-22deg); animation: shine 4.5s ease-in-out infinite; pointer-events: none;
+    }
+    @keyframes shine { 0%, 55% { left: -60%; } 100% { left: 140%; } }
+    .btn-donate i { animation: beat 2.2s ease-in-out infinite; }
+    @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } }
+
+    .icon-btn {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 12px; font-size: 16px; color: var(--muted);
+      border: 1px solid transparent; position: relative;
+      transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.18s;
+    }
+    .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+    .icon-btn:active { transform: scale(0.92); }
+    .icon-btn.on { color: var(--accent); background: rgba(83, 252, 24, 0.09); border-color: rgba(83, 252, 24, 0.22); }
+    .icon-btn.spin i { animation: spin 0.7s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .icon-btn:focus-visible, .btn:focus-visible, .divider:focus-visible, .cam-btn:focus-visible, .seg button:focus-visible, .switch:focus-visible, .corner:focus-visible {
+      outline: 2px solid var(--accent); outline-offset: 2px;
+    }
+
+    /* ================= LAYOUT ================= */
+    .layout {
+      flex: 1 1 auto; min-height: 0; display: flex; padding: var(--gap);
+      padding-left: max(var(--gap), env(safe-area-inset-left));
+      padding-right: max(var(--gap), env(safe-area-inset-right));
+    }
+    .stage {
+      flex: 1 1 auto; min-width: 0; min-height: 0; position: relative;
+      background: #000; border-radius: var(--radius); border: 1px solid var(--line);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); overflow: hidden;
+    }
+    .stage:fullscreen, .stage:-webkit-full-screen { border-radius: 0; border: 0; }
+    .stage > iframe.main { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; }
+
+    .loader {
+      position: absolute; inset: 0; display: grid; place-items: center; z-index: 0;
+      color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .loader .ring {
+      width: 38px; height: 38px; margin: 0 auto 12px; border-radius: 50%;
+      border: 3px solid var(--surface-3); border-top-color: var(--accent); animation: spin 0.9s linear infinite;
+    }
+    .loader div { text-align: center; }
+
+    .divider {
+      flex: 0 0 var(--divider); width: var(--divider); display: grid; place-items: center;
+      cursor: col-resize; touch-action: none; user-select: none; position: relative; z-index: 20;
+    }
+    .divider::before { content: ""; position: absolute; inset: 0 -6px; }
+    .divider .pill { width: 4px; height: 44px; border-radius: 4px; background: var(--line-strong); transition: background 0.18s, height 0.18s, width 0.18s; }
+    .divider:hover .pill, .divider.active .pill, .divider:focus-visible .pill {
+      background: var(--accent); height: 72px; box-shadow: 0 0 14px rgba(83, 252, 24, 0.5);
+    }
+
+    .chat {
+      flex: 0 0 min(var(--chat-w, 380px), 60%); width: min(var(--chat-w, 380px), 60%);
+      min-width: 0; min-height: 0; display: flex; flex-direction: column;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); overflow: hidden;
+    }
+    .chat-head {
+      flex: 0 0 auto; display: flex; align-items: center; gap: 10px;
+      padding: 10px 10px 10px 14px; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+    }
+    .chat-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .chat-title i { color: var(--accent); }
+    .chat-tag { font-size: 10px; font-weight: 700; color: var(--muted); padding: 3px 8px; border-radius: 999px; background: var(--surface-3); letter-spacing: 0.06em; }
+    .chat-head .spacer { flex: 1; }
+    .chat-head .icon-btn { width: 34px; height: 34px; font-size: 14px; border-radius: 10px; }
+    .chat-body { position: relative; flex: 1 1 auto; min-height: 0; background: var(--surface); }
+    .chat-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; background: transparent; }
+    .layout.chat-hidden .chat, .layout.chat-hidden .divider { display: none; }
+
+    /* ================= WEBCAM (floats over the WHOLE page) ================= */
+    .cam {
+      position: fixed; z-index: 80; left: 0; top: 0;
+      width: 280px; height: 157.5px;
+      border-radius: 14px; touch-action: none;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .cam.anim { transition: left 0.28s cubic-bezier(.2,.8,.2,1), top 0.28s cubic-bezier(.2,.8,.2,1), width 0.28s cubic-bezier(.2,.8,.2,1), height 0.28s cubic-bezier(.2,.8,.2,1), opacity 0.2s, transform 0.2s; }
+    .cam.hidden { opacity: 0 !important; pointer-events: none; transform: scale(0.85); }
+    .cam.dragging { box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8), 0 0 0 2px var(--accent); }
+    .cam.dragging, .cam:hover { opacity: 1 !important; }
+    .cam-inner {
+      position: absolute; inset: 0; border-radius: 14px; overflow: hidden; background: #000;
+      border: 1px solid var(--line-strong);
+    }
+    .cam-inner iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+
+    .cam-bar {
+      position: absolute; left: 0; right: 0; top: 0; height: 34px; z-index: 3;
+      display: flex; align-items: center; gap: 6px; padding: 0 12px 0 10px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+      cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+      transition: opacity 0.18s;
+    }
+    .cam.dragging .cam-bar { cursor: grabbing; }
+    .cam.locked .cam-bar { cursor: default; }
+    .cam-label {
+      display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; overflow: hidden; white-space: nowrap;
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); pointer-events: none;
+    }
+    .cam-label i { font-size: 11px; color: var(--accent); }
+    .cam-label .lock-i { display: none; color: var(--gold); }
+    .cam.locked .cam-label .lock-i { display: inline; }
+    .cam.locked .cam-label .grip-i { display: none; }
+    .cam-btn {
+      width: 24px; height: 24px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 7px;
+      font-size: 11px; color: #fff; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px);
+      transition: background 0.15s;
+    }
+    .cam-btn:hover { background: rgba(255, 255, 255, 0.22); }
+    .cam-btn.close:hover { background: #ff3b4e; }
+
+    /* resize handles sit on the corners, straddling the edge */
+    .rz { position: absolute; width: 22px; height: 22px; z-index: 5; touch-action: none; opacity: 0; transition: opacity 0.18s; }
+    .rz::after {
+      content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px;
+      border-radius: 50%; background: #0c0c10; border: 2px solid var(--accent);
+      box-shadow: 0 0 8px rgba(83, 252, 24, 0.6);
+    }
+    .rz.tl { left: -9px; top: -9px; cursor: nwse-resize; }
+    .rz.tr { right: -9px; top: -9px; cursor: nesw-resize; }
+    .rz.bl { left: -9px; bottom: -9px; cursor: nesw-resize; }
+    .rz.br { right: -9px; bottom: -9px; cursor: nwse-resize; }
+    .cam.locked .rz { display: none; }
+
+    @media (hover: hover) {
+      .cam-bar { opacity: 0; }
+      .cam:hover .cam-bar, .cam.dragging .cam-bar, .cam:focus-within .cam-bar { opacity: 1; }
+      .cam:hover:not(.locked) .rz, .cam.dragging .rz { opacity: 1; }
+    }
+    @media (hover: none) {
+      .rz { opacity: 0.95; width: 30px; height: 30px; }
+      .rz.tl { left: -13px; top: -13px; } .rz.tr { right: -13px; top: -13px; }
+      .rz.bl { left: -13px; bottom: -13px; } .rz.br { right: -13px; bottom: -13px; }
+      .cam-bar { padding-right: 18px; }
+    }
+
+    .shield { position: fixed; inset: 0; z-index: 9999; display: none; }
+    body.is-dragging .shield { display: block; }
+    body.is-dragging { user-select: none; -webkit-user-select: none; }
+
+    /* ================= CAM SETTINGS MENU ================= */
+    .cam-menu {
+      position: fixed; z-index: 200; width: 304px; max-height: calc(100dvh - 20px); overflow: auto;
+      display: none; padding: 14px; border-radius: 20px;
+      background: rgba(18, 18, 25, 0.96); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+      border: 1px solid var(--line-strong); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+    }
+    .cam-menu.open { display: block; animation: pop 0.16s ease-out; }
+    @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
+    .menu-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .menu-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .menu-title i { color: var(--accent); }
+    .menu-head .icon-btn { width: 32px; height: 32px; font-size: 14px; border-radius: 10px; }
+    .menu-sec { padding: 12px 0; border-top: 1px solid var(--line); }
+    .menu-sec:first-of-type { border-top: 0; }
+    .menu-label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10.5px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 9px;
+    }
+    .menu-label b { color: var(--text); font-weight: 700; letter-spacing: 0.02em; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 13px; font-weight: 600; width: 100%; text-align: left; }
+    .row small { display: block; color: var(--muted); font-weight: 500; font-size: 11px; margin-top: 1px; }
+    .row i.ri { width: 20px; text-align: center; color: var(--muted); margin-right: 10px; }
+    .row .txt { display: flex; align-items: center; }
+
+    .switch {
+      position: relative; flex: 0 0 auto; width: 42px; height: 24px; border-radius: 999px;
+      background: var(--surface-3); border: 1px solid var(--line-strong); transition: background 0.18s, border-color 0.18s;
+    }
+    .switch::after {
+      content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+      background: #cfcfd8; transition: transform 0.18s cubic-bezier(.3,1.4,.5,1), background 0.18s;
+    }
+    .switch[aria-checked="true"] { background: rgba(83, 252, 24, 0.25); border-color: rgba(83, 252, 24, 0.6); }
+    .switch[aria-checked="true"]::after { transform: translateX(18px); background: var(--accent); }
+
+    .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .seg button {
+      height: 34px; border-radius: 10px; font-weight: 700; font-size: 12.5px;
+      background: var(--surface-3); border: 1px solid transparent; color: var(--muted); transition: all 0.15s;
+    }
+    .seg button:hover { color: var(--text); border-color: var(--line-strong); }
+    .seg button.active { background: rgba(83, 252, 24, 0.14); color: var(--accent); border-color: rgba(83, 252, 24, 0.4); }
+
+    input[type="range"] { width: 100%; height: 22px; accent-color: var(--accent); cursor: pointer; background: transparent; }
+
+    .screen {
+      position: relative; width: 100%; aspect-ratio: 16 / 8.5; border-radius: 12px;
+      background: linear-gradient(180deg, var(--surface-3), var(--surface-2)); border: 1px solid var(--line-strong);
+    }
+    .screen::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14%; background: var(--surface); border-radius: 11px 11px 0 0; border-bottom: 1px solid var(--line); }
+    .screen .custom-tag {
+      position: absolute; inset: 0; display: none; place-items: center; font-size: 11px; font-weight: 600; color: var(--muted);
+      pointer-events: none; text-align: center; padding-top: 10%;
+    }
+    .screen.is-custom .custom-tag { display: grid; }
+    .corner {
+      position: absolute; width: 34px; height: 21px; border-radius: 6px;
+      background: var(--surface-3); border: 1px dashed var(--line-strong); transition: all 0.15s;
+    }
+    .corner:hover { border-color: var(--accent); background: rgba(83, 252, 24, 0.12); }
+    .corner.active { background: var(--accent); border: 1px solid var(--accent); box-shadow: 0 0 14px rgba(83, 252, 24, 0.5); }
+    .corner.tl { left: 8px; top: 20%; } .corner.tr { right: 8px; top: 20%; }
+    .corner.bl { left: 8px; bottom: 8px; } .corner.br { right: 8px; bottom: 8px; }
+
+    .menu-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .menu-actions button {
+      height: 38px; border-radius: 11px; font-weight: 700; font-size: 12.5px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--surface-3); border: 1px solid var(--line-strong); transition: all 0.15s;
+    }
+    .menu-actions button:hover { background: #2a2a36; }
+    .menu-actions button.danger:hover { background: rgba(255, 59, 78, 0.18); border-color: rgba(255, 59, 78, 0.5); color: #ff8a96; }
+    .menu-hint { margin-top: 10px; font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .menu-hint kbd { background: var(--surface-3); border: 1px solid var(--line-strong); border-radius: 5px; padding: 0 5px; font-family: inherit; font-weight: 700; color: var(--text); }
+
+    /* ================= MOBILE BOTTOM BAR ================= */
+    .bottombar {
+      display: none; flex: 0 0 auto; gap: 8px;
+      padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom));
+      padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right));
+      background: rgba(15, 15, 20, 0.85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--line); z-index: 40;
+    }
+    .bottombar .btn { height: 46px; padding: 0 14px; flex: 1 1 0; font-size: 13px; width: auto; }
+    .bottombar .btn-donate { flex: 1.6 1 0; }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 1100px) {
+      .actions .btn-kick span.lbl, .actions .btn-discord span.lbl { display: none; }
+      .actions .btn-kick, .actions .btn-discord { padding: 0; width: 42px; }
+    }
+
+    @media (max-width: 820px) {
+      :root { --gap: 8px; --divider: 14px; --radius: 14px; }
+      .topbar { padding: 8px 12px; padding-top: max(8px, env(safe-area-inset-top)); gap: 6px; }
+      .brand-mark { width: 36px; height: 36px; font-size: 16px; border-radius: 11px; }
+      .brand-name { font-size: 17px; }
+      .actions, .sep.desktop-only { display: none; }
+      .bottombar { display: flex; }
+      .layout { flex-direction: column; }
+      .chat { flex: 0 0 min(var(--chat-h, 42%), 72%); width: 100%; height: min(var(--chat-h, 42%), 72%); }
+      .divider { flex: 0 0 var(--divider); width: 100%; height: var(--divider); cursor: row-resize; }
+      .divider::before { inset: -6px 0; }
+      .divider .pill { width: 44px; height: 4px; }
+      .divider:hover .pill, .divider.active .pill, .divider:focus-visible .pill { width: 72px; height: 4px; }
+      .stage { min-height: 150px; }
+      .tools { gap: 2px; }
+      .icon-btn { width: 38px; height: 38px; }
+      .cam-menu { left: 10px !important; right: 10px !important; top: auto !important; bottom: calc(10px + env(safe-area-inset-bottom)); width: auto; border-radius: 22px; }
+    }
+    @media (max-width: 400px) { .brand-sub { display: none; } }
+
+    @media (max-height: 520px) and (min-width: 821px) {
+      .topbar { padding-top: 6px; padding-bottom: 6px; }
+      .btn, .icon-btn { height: 36px; }
+      .icon-btn { width: 36px; }
+      .brand-mark { width: 34px; height: 34px; }
+    }
+
+    body.theater .topbar, body.theater .bottombar, body.theater .layout > .chat, body.theater .layout > .divider { display: none; }
+    body.theater .layout { padding: 0; }
+    body.theater .stage { border-radius: 0; border: 0; }
+    .theater-exit { display: none; }
+    body.theater .theater-exit {
+      display: grid; position: absolute; top: 10px; left: 10px; z-index: 60; width: 38px; height: 38px;
+      place-items: center; border-radius: 11px; background: rgba(0, 0, 0, 0.6); color: #fff; backdrop-filter: blur(8px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shield" id="shield"></div>
+
+  <div class="app">
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar" id="topbar">
+      <a class="brand" href="https://kick.com/aktor" target="_blank" rel="noopener noreferrer" aria-label="AKTOR na Kick">
+        <span class="brand-mark"><i class="fa-solid fa-tower-broadcast"></i></span>
+        <span class="brand-text">
+          <span class="brand-name">Aktor</span>
+          <span class="brand-sub"><span class="dot"></span>Stream &amp; czat</span>
+        </span>
+      </a>
+
+      <div class="spacer"></div>
+
+      <nav class="actions" aria-label="Linki">
+        <a class="btn btn-discord" href="https://discord.com/invite/xj2qAYnwtM" target="_blank" rel="noopener noreferrer" title="Dołącz na Discord">
+          <i class="fa-brands fa-discord"></i><span class="lbl">Discord</span>
+        </a>
+        <a class="btn btn-kick" href="https://kick.com/aktor" target="_blank" rel="noopener noreferrer" title="Kanał na Kick">
+          <span class="kick-ico">K</span><span class="lbl">Kick</span>
+        </a>
+        <a class="btn btn-donate" href="https://tipply.pl/@aktor18" target="_blank" rel="noopener noreferrer">
+          <i class="fa-solid fa-heart"></i>Donate
+        </a>
+      </nav>
+
+      <span class="sep desktop-only"></span>
+
+      <div class="tools">
+        <button class="icon-btn on" id="btnCam" title="Pokaż / ukryj kamerkę (V)" aria-pressed="true" aria-label="Pokaż lub ukryj kamerkę"><i class="fa-solid fa-video"></i></button>
+        <button class="icon-btn" id="btnCamSet" title="Opcje kamerki (K)" aria-label="Opcje kamerki" aria-haspopup="dialog"><i class="fa-solid fa-sliders"></i></button>
+        <button class="icon-btn on" id="btnChat" title="Czat (C)" aria-pressed="true" aria-label="Pokaż lub ukryj czat"><i class="fa-solid fa-comments"></i></button>
+        <button class="icon-btn" id="btnReload" title="Odśwież odtwarzacz" aria-label="Odśwież odtwarzacz"><i class="fa-solid fa-rotate-right"></i></button>
+        <button class="icon-btn" id="btnFull" title="Pełny ekran (F)" aria-label="Pełny ekran"><i class="fa-solid fa-expand"></i></button>
+      </div>
+    </header>
+
+    <!-- ============ MAIN ============ -->
+    <main class="layout" id="layout">
+      <section class="stage" id="stage">
+        <div class="loader"><div><div class="ring"></div>Ładowanie streamu</div></div>
+        <iframe class="main" id="playerFrame"
+          src="https://ok.ru/videoembed/16903368679018?nochat=1&autoplay=1"
+          title="Stream"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <button class="theater-exit" id="btnTheaterExit" aria-label="Wyjdź z trybu kinowego"><i class="fa-solid fa-xmark"></i></button>
+      </section>
+
+      <div class="divider" id="divider" role="separator" tabindex="0" aria-label="Zmień rozmiar czatu" title="Przeciągnij, aby zmienić rozmiar">
+        <span class="pill"></span>
+      </div>
+
+      <aside class="chat" id="chat">
+        <div class="chat-head">
+          <div class="chat-title"><i class="fa-solid fa-comments"></i>Czat <span class="chat-tag">KICK</span></div>
+          <div class="spacer"></div>
+          <button class="icon-btn" id="chatReload" title="Odśwież czat" aria-label="Odśwież czat"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="icon-btn" id="chatPop" title="Otwórz czat w nowym oknie" aria-label="Otwórz czat w nowym oknie"><i class="fa-solid fa-up-right-from-square"></i></button>
+          <button class="icon-btn" id="chatHide" title="Ukryj czat" aria-label="Ukryj czat"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="chat-body">
+          <div class="loader"><div><div class="ring"></div>Łączenie z czatem</div></div>
+          <iframe id="chatFrame" src="https://chat.kick.cx/embed/aktor" title="Czat" allow="clipboard-write" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </aside>
+    </main>
+
+    <!-- ============ MOBILE ACTION BAR ============ -->
+    <nav class="bottombar" id="bottombar" aria-label="Linki">
+      <a class="btn btn-donate" href="https://tipply.pl/@aktor18" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-heart"></i>Donate</a>
+      <a class="btn btn-discord" href="https://discord.com/invite/xj2qAYnwtM" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-discord"></i>Discord</a>
+      <a class="btn btn-kick" href="https://kick.com/aktor" target="_blank" rel="noopener noreferrer"><span class="kick-ico">K</span>Kick</a>
+    </nav>
+  </div>
+
+  <!-- ============ WEBCAM — fixed, draggable over the entire page ============ -->
+  <div class="cam" id="cam">
+    <div class="cam-inner">
+      <iframe id="camFrame" src="https://player.kick.cx/aktor" title="Kamerka" scrolling="no" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="cam-bar move-window" id="camHandle">
+        <span class="cam-label"><i class="fa-solid fa-grip grip-i"></i><i class="fa-solid fa-lock lock-i"></i>Kamerka</span>
+        <button class="cam-btn" id="camGear" title="Opcje kamerki" aria-label="Opcje kamerki"><i class="fa-solid fa-gear"></i></button>
+        <button class="cam-btn close" id="camClose" title="Ukryj kamerkę" aria-label="Ukryj kamerkę"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <span class="rz tl" data-dir="tl"></span>
+    <span class="rz tr" data-dir="tr"></span>
+    <span class="rz bl" data-dir="bl"></span>
+    <span class="rz br" data-dir="br"></span>
+  </div>
+
+  <!-- ============ WEBCAM OPTIONS ============ -->
+  <div class="cam-menu" id="camMenu" role="dialog" aria-label="Opcje kamerki">
+    <div class="menu-head">
+      <div class="menu-title"><i class="fa-solid fa-video"></i>Kamerka</div>
+      <button class="icon-btn" id="menuClose" aria-label="Zamknij"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="menu-sec">
+      <div class="row">
+        <span class="txt"><i class="fa-solid fa-eye ri"></i>Pokaż kamerkę</span>
+        <button class="switch" role="switch" id="optShow" aria-checked="true" aria-label="Pokaż kamerkę"></button>
+      </div>
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-label"><span>Rozmiar</span><b id="sizeVal">280 px</b></div>
+      <div class="seg" id="sizeSeg">
+        <button data-size="200">S</button>
+        <button data-size="280">M</button>
+        <button data-size="400">L</button>
+        <button data-size="560">XL</button>
+      </div>
+      <input type="range" id="optSize" min="140" max="720" step="2" aria-label="Szerokość kamerki" style="margin-top:8px" />
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-label"><span>Przezroczystość</span><b id="opVal">100%</b></div>
+      <input type="range" id="optOpacity" min="25" max="100" step="1" aria-label="Przezroczystość kamerki" />
+    </div>
+
+    <div class="menu-sec">
+      <div class="menu-label"><span>Przyciągnij do rogu strony</span></div>
+      <div class="screen" id="screen">
+        <button class="corner tl" data-corner="tl" aria-label="Lewy górny róg"></button>
+        <button class="corner tr" data-corner="tr" aria-label="Prawy górny róg"></button>
+        <button class="corner bl" data-corner="bl" aria-label="Lewy dolny róg"></button>
+        <button class="corner br" data-corner="br" aria-label="Prawy dolny róg"></button>
+        <div class="custom-tag">Własna pozycja</div>
+      </div>
+    </div>
+
+    <div class="menu-sec">
+      <div class="row">
+        <span class="txt"><i class="fa-solid fa-lock ri"></i><span>Zablokuj pozycję<small>Blokuje przesuwanie i zmianę rozmiaru</small></span></span>
+        <button class="switch" role="switch" id="optLock" aria-checked="false" aria-label="Zablokuj pozycję"></button>
+      </div>
+      <div class="row">
+        <span class="txt"><i class="fa-solid fa-magnet ri"></i><span>Magnes do krawędzi<small>Przyciąga przy przesuwaniu</small></span></span>
+        <button class="switch" role="switch" id="optSnap" aria-checked="true" aria-label="Magnes do krawędzi"></button>
+      </div>
+    </div>
+
+    <div class="menu-actions">
+      <button id="optReloadCam"><i class="fa-solid fa-rotate-right"></i>Odśwież</button>
+      <button id="optReset" class="danger"><i class="fa-solid fa-arrow-rotate-left"></i>Resetuj</button>
+    </div>
+    <p class="menu-hint">Przeciągaj za górny pasek, rozmiar zmieniasz z rogów. Dwuklik na pasku = powrót do rogu. Skróty: <kbd>V</kbd> kamerka, <kbd>K</kbd> opcje.</p>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (s) => document.querySelector(s);
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const store = {
+        get(k, d) { try { const v = localStorage.getItem("aktor." + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+        set(k, v) { try { localStorage.setItem("aktor." + k, JSON.stringify(v)); } catch (e) {} }
+      };
+
+      const layout = $("#layout"), stage = $("#stage"), chat = $("#chat"), divider = $("#divider");
+      const topbar = $("#topbar"), bottombar = $("#bottombar");
+      const cam = $("#cam"), camHandle = $("#camHandle"), camFrame = $("#camFrame");
+      const btnCam = $("#btnCam"), btnCamSet = $("#btnCamSet"), btnChat = $("#btnChat"), btnReload = $("#btnReload"), btnFull = $("#btnFull");
+      const playerFrame = $("#playerFrame"), chatFrame = $("#chatFrame");
+      const menu = $("#camMenu");
+      const mq = window.matchMedia("(max-width: 820px)");
+      const root = document.documentElement;
+
+      function hideLoader(frame) {
+        frame.addEventListener("load", () => {
+          const l = frame.parentElement.querySelector(".loader");
+          if (l) setTimeout(() => (l.style.display = "none"), 300);
+        });
+      }
+      hideLoader(playerFrame);
+      hideLoader(chatFrame);
+
+      function dragOn() { document.body.classList.add("is-dragging"); }
+      function dragOff() { document.body.classList.remove("is-dragging"); document.body.style.cursor = ""; }
+      const isFs = () => document.fullscreenElement || document.webkitFullscreenElement;
+
+      /* =========================================================
+         WEBCAM — free movement over the whole page
+         ========================================================= */
+      const AR = 16 / 9, MIN_W = 140, MAX_W = 720, EDGE = 12;
+      const DEFAULTS = { x: 0, y: 0, w: 0, custom: false, corner: "tr", hidden: false, opacity: 100, lock: false, snap: true };
+      const S = Object.assign({}, DEFAULTS, store.get("cam2", {}));
+      let cur = { x: 0, y: 0, w: 280, h: 157.5 };
+
+      const defaultW = (vw) => (vw < 600 ? clamp(vw * 0.38, 130, 200) : clamp(vw * 0.2, 220, 340));
+      const maxCamW = () => Math.max(MIN_W, Math.min(window.innerWidth - 16, (window.innerHeight - 16) * AR, MAX_W));
+
+      function insets() {
+        const covering = isFs() || document.body.classList.contains("theater");
+        const top = covering ? 0 : Math.max(0, topbar.getBoundingClientRect().bottom);
+        let bottom = 0;
+        if (!covering && bottombar.offsetHeight > 0) bottom = window.innerHeight - bottombar.getBoundingClientRect().top;
+        return { top, bottom };
+      }
+
+      function applyCam() {
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const maxW = maxCamW();
+        const w = clamp(S.w || defaultW(vw), Math.min(MIN_W, maxW), maxW);
+        const h = w / AR;
+        let x, y;
+        if (S.custom) { x = S.x; y = S.y; }
+        else {
+          const ins = insets();
+          const left = S.corner.includes("l");
+          const top = S.corner.includes("t");
+          x = left ? EDGE : vw - w - EDGE;
+          y = top ? ins.top + EDGE : vh - ins.bottom - h - EDGE;
+        }
+        x = clamp(x, 0, Math.max(0, vw - w));
+        y = clamp(y, 0, Math.max(0, vh - h));
+        cur = { x, y, w, h };
+        cam.style.left = x + "px";
+        cam.style.top = y + "px";
+        cam.style.width = w + "px";
+        cam.style.height = h + "px";
+        cam.style.opacity = S.opacity / 100;
+        if (menu.classList.contains("open")) { placeMenu(); syncMenu(); }
+      }
+
+      function saveCam() { store.set("cam2", S); }
+      function animateCam() { cam.classList.add("anim"); clearTimeout(animateCam.t); animateCam.t = setTimeout(() => cam.classList.remove("anim"), 320); }
+
+      function setHidden(hidden) {
+        S.hidden = hidden;
+        cam.classList.toggle("hidden", hidden);
+        btnCam.classList.toggle("on", !hidden);
+        btnCam.setAttribute("aria-pressed", String(!hidden));
+        saveCam(); syncMenu();
+      }
+      function setLock(v) {
+        S.lock = v; cam.classList.toggle("locked", v); saveCam(); syncMenu();
+      }
+      function snapToCorner(c) {
+        animateCam(); S.custom = false; S.corner = c; applyCam(); saveCam(); syncMenu();
+      }
+
+      /* magnet to viewport edges */
+      function magnet(x, y) {
+        if (!S.snap) return { x, y };
+        const vw = window.innerWidth, vh = window.innerHeight, T = 16, M = EDGE;
+        if (Math.abs(x - M) < T) x = M; else if (Math.abs(x + cur.w - (vw - M)) < T) x = vw - M - cur.w;
+        if (Math.abs(y - M) < T) y = M; else if (Math.abs(y + cur.h - (vh - M)) < T) y = vh - M - cur.h;
+        return { x, y };
+      }
+
+      /* ---- drag (whole page) ---- */
+      let drag = null;
+      camHandle.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".cam-btn") || S.lock) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        e.preventDefault();
+        drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, x: cur.x, y: cur.y };
+        try { camHandle.setPointerCapture(e.pointerId); } catch (err) {}
+        cam.classList.add("dragging"); dragOn(); document.body.style.cursor = "grabbing";
+      });
+      camHandle.addEventListener("pointermove", (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        e.preventDefault();
+        const vw = window.innerWidth, vh = window.innerHeight;
+        let x = clamp(drag.x + (e.clientX - drag.sx), 0, Math.max(0, vw - cur.w));
+        let y = clamp(drag.y + (e.clientY - drag.sy), 0, Math.max(0, vh - cur.h));
+        const m = magnet(x, y);
+        S.custom = true; S.x = clamp(m.x, 0, Math.max(0, vw - cur.w)); S.y = clamp(m.y, 0, Math.max(0, vh - cur.h)); S.w = cur.w;
+        applyCam();
+      });
+      function endDrag(e) {
+        if (!drag || (e && e.pointerId !== drag.id)) return;
+        drag = null; cam.classList.remove("dragging"); dragOff(); saveCam(); syncMenu();
+      }
+      camHandle.addEventListener("pointerup", endDrag);
+      camHandle.addEventListener("pointercancel", endDrag);
+      camHandle.addEventListener("dblclick", (e) => {
+        if (e.target.closest(".cam-btn") || S.lock) return;
+        snapToCorner(S.corner);
+      });
+
+      /* ---- resize from corners (16:9) ---- */
+      let rs = null;
+      cam.querySelectorAll(".rz").forEach((h) => {
+        h.addEventListener("pointerdown", (e) => {
+          if (S.lock) return;
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          e.preventDefault(); e.stopPropagation();
+          rs = { id: e.pointerId, dir: h.dataset.dir, sx: e.clientX, sy: e.clientY, s: Object.assign({}, cur) };
+          try { h.setPointerCapture(e.pointerId); } catch (err) {}
+          cam.classList.add("dragging"); dragOn(); document.body.style.cursor = getComputedStyle(h).cursor;
+        });
+        h.addEventListener("pointermove", (e) => {
+          if (!rs || e.pointerId !== rs.id) return;
+          e.preventDefault();
+          const vw = window.innerWidth, vh = window.innerHeight;
+          const L = rs.dir.includes("l"), T = rs.dir.includes("t"), s = rs.s;
+          const dx = (L ? -1 : 1) * (e.clientX - rs.sx);
+          const dy = (T ? -1 : 1) * (e.clientY - rs.sy) * AR;
+          let w = s.w + (Math.abs(dx) >= Math.abs(dy) ? dx : dy);
+          const maxX = L ? s.x + s.w : vw - s.x;
+          const maxY = (T ? s.y + s.h : vh - s.y) * AR;
+          w = clamp(w, MIN_W, Math.max(MIN_W, Math.min(maxX, maxY, MAX_W)));
+          const hh = w / AR;
+          S.custom = true; S.w = w;
+          S.x = L ? s.x + s.w - w : s.x;
+          S.y = T ? s.y + s.h - hh : s.y;
+          applyCam();
+        });
+        const end = (e) => {
+          if (!rs || e.pointerId !== rs.id) return;
+          rs = null; cam.classList.remove("dragging"); dragOff(); saveCam(); syncMenu();
+        };
+        h.addEventListener("pointerup", end);
+        h.addEventListener("pointercancel", end);
+      });
+
+      $("#camClose").addEventListener("click", () => setHidden(true));
+      btnCam.addEventListener("click", () => setHidden(!S.hidden));
+
+      /* =========================================================
+         WEBCAM OPTIONS MENU
+         ========================================================= */
+      const optShow = $("#optShow"), optLock = $("#optLock"), optSnap = $("#optSnap");
+      const optSize = $("#optSize"), optOpacity = $("#optOpacity");
+      const sizeVal = $("#sizeVal"), opVal = $("#opVal"), screenEl = $("#screen");
+
+      function setSwitch(el, v) { el.setAttribute("aria-checked", String(v)); }
+      function syncMenu() {
+        setSwitch(optShow, !S.hidden);
+        setSwitch(optLock, S.lock);
+        setSwitch(optSnap, S.snap);
+        optSize.max = Math.round(maxCamW());
+        optSize.value = Math.round(cur.w);
+        sizeVal.textContent = Math.round(cur.w) + " px";
+        optOpacity.value = S.opacity;
+        opVal.textContent = S.opacity + "%";
+        document.querySelectorAll("#sizeSeg button").forEach((b) =>
+          b.classList.toggle("active", Math.abs(+b.dataset.size - cur.w) < 8));
+        document.querySelectorAll(".corner").forEach((b) =>
+          b.classList.toggle("active", !S.custom && b.dataset.corner === S.corner));
+        screenEl.classList.toggle("is-custom", S.custom);
+      }
+
+      function placeMenu() {
+        if (mq.matches) { menu.style.left = menu.style.top = ""; return; }
+        const mw = menu.offsetWidth || 304, mh = menu.offsetHeight || 500;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const r = cam.getBoundingClientRect();
+        let x = r.right - mw;
+        let y = r.bottom + 10;
+        if (y + mh > vh - 10) y = r.top - mh - 10;
+        if (y < 10) { // not enough room above/below: dock next to camera
+          y = clamp(r.top, 10, Math.max(10, vh - mh - 10));
+          x = r.left - mw - 10;
+          if (x < 10) x = r.right + 10;
+        }
+        menu.style.left = clamp(x, 10, Math.max(10, vw - mw - 10)) + "px";
+        menu.style.top = clamp(y, 10, Math.max(10, vh - mh - 10)) + "px";
+      }
+      function openMenu() {
+        menu.classList.add("open"); btnCamSet.classList.add("on");
+        syncMenu(); placeMenu(); placeMenu();
+      }
+      function closeMenu() { menu.classList.remove("open"); btnCamSet.classList.remove("on"); }
+      const toggleMenu = () => (menu.classList.contains("open") ? closeMenu() : openMenu());
+
+      btnCamSet.addEventListener("click", (e) => { e.stopPropagation(); if (S.hidden) setHidden(false); toggleMenu(); });
+      $("#camGear").addEventListener("click", (e) => { e.stopPropagation(); toggleMenu(); });
+      $("#menuClose").addEventListener("click", closeMenu);
+      document.addEventListener("pointerdown", (e) => {
+        if (!menu.classList.contains("open")) return;
+        if (menu.contains(e.target) || btnCamSet.contains(e.target) || e.target.closest("#camGear")) return;
+        closeMenu();
+      });
+
+      optShow.addEventListener("click", () => setHidden(!S.hidden));
+      optLock.addEventListener("click", () => setLock(!S.lock));
+      optSnap.addEventListener("click", () => { S.snap = !S.snap; saveCam(); syncMenu(); });
+      optSize.addEventListener("input", () => { S.w = +optSize.value; applyCam(); });
+      optSize.addEventListener("change", saveCam);
+      optOpacity.addEventListener("input", () => { S.opacity = +optOpacity.value; applyCam(); });
+      optOpacity.addEventListener("change", saveCam);
+      document.querySelectorAll("#sizeSeg button").forEach((b) =>
+        b.addEventListener("click", () => { animateCam(); S.w = +b.dataset.size; applyCam(); saveCam(); }));
+      document.querySelectorAll(".corner").forEach((b) =>
+        b.addEventListener("click", () => snapToCorner(b.dataset.corner)));
+      $("#optReloadCam").addEventListener("click", () => { camFrame.src = camFrame.src; });
+      $("#optReset").addEventListener("click", () => {
+        animateCam();
+        Object.assign(S, DEFAULTS);
+        cam.classList.remove("hidden", "locked");
+        btnCam.classList.add("on"); btnCam.setAttribute("aria-pressed", "true");
+        applyCam(); saveCam(); syncMenu();
+      });
+
+      /* init cam state */
+      cam.classList.toggle("hidden", S.hidden);
+      cam.classList.toggle("locked", S.lock);
+      btnCam.classList.toggle("on", !S.hidden);
+      btnCam.setAttribute("aria-pressed", String(!S.hidden));
+      applyCam();
+      window.addEventListener("resize", () => { applyCam(); });
+      if ("ResizeObserver" in window) {
+        const ro = new ResizeObserver(applyCam);
+        ro.observe(topbar); ro.observe(bottombar);
+      }
+      window.addEventListener("load", applyCam);
+
+      /* =========================================================
+         CHAT: resizable + toggle
+         ========================================================= */
+      const sizes = Object.assign({ w: 380, h: null }, store.get("chat", {}));
+      function applyChatSize() {
+        root.style.setProperty("--chat-w", sizes.w + "px");
+        if (sizes.h) root.style.setProperty("--chat-h", sizes.h + "px");
+      }
+      applyChatSize();
+
+      function setChatHidden(hidden) {
+        layout.classList.toggle("chat-hidden", hidden);
+        btnChat.classList.toggle("on", !hidden);
+        btnChat.setAttribute("aria-pressed", String(!hidden));
+        store.set("chatHidden", hidden);
+      }
+      btnChat.addEventListener("click", () => setChatHidden(!layout.classList.contains("chat-hidden")));
+      $("#chatHide").addEventListener("click", () => setChatHidden(true));
+      if (store.get("chatHidden", false)) setChatHidden(true);
+
+      let dv = null;
+      function setFromPointer(x, y) {
+        const r = layout.getBoundingClientRect();
+        const cs = getComputedStyle(layout);
+        if (mq.matches) {
+          const pb = parseFloat(cs.paddingBottom) || 0;
+          sizes.h = clamp(r.bottom - pb - y - divider.offsetHeight / 2, 130, r.height * 0.72);
+        } else {
+          const pr = parseFloat(cs.paddingRight) || 0;
+          sizes.w = clamp(r.right - pr - x - divider.offsetWidth / 2, 260, Math.min(720, r.width * 0.6));
+        }
+        applyChatSize();
+      }
+      divider.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        e.preventDefault(); dv = e.pointerId;
+        try { divider.setPointerCapture(e.pointerId); } catch (err) {}
+        divider.classList.add("active"); dragOn();
+        document.body.style.cursor = mq.matches ? "row-resize" : "col-resize";
+      });
+      divider.addEventListener("pointermove", (e) => {
+        if (dv === null || e.pointerId !== dv) return;
+        e.preventDefault(); setFromPointer(e.clientX, e.clientY);
+      });
+      function endDv(e) {
+        if (dv === null || e.pointerId !== dv) return;
+        dv = null; divider.classList.remove("active"); dragOff(); store.set("chat", sizes);
+      }
+      divider.addEventListener("pointerup", endDv);
+      divider.addEventListener("pointercancel", endDv);
+      divider.addEventListener("dblclick", () => {
+        sizes.w = 380; sizes.h = null; root.style.removeProperty("--chat-h"); applyChatSize(); store.set("chat", sizes);
+      });
+      divider.addEventListener("keydown", (e) => {
+        const step = e.shiftKey ? 60 : 20;
+        let used = true;
+        if (mq.matches) {
+          const base = sizes.h || chat.offsetHeight;
+          if (e.key === "ArrowUp") sizes.h = base + step;
+          else if (e.key === "ArrowDown") sizes.h = Math.max(130, base - step);
+          else used = false;
+        } else {
+          if (e.key === "ArrowLeft") sizes.w = Math.min(720, sizes.w + step);
+          else if (e.key === "ArrowRight") sizes.w = Math.max(260, sizes.w - step);
+          else used = false;
+        }
+        if (used) { e.preventDefault(); applyChatSize(); store.set("chat", sizes); }
+      });
+
+      $("#chatReload").addEventListener("click", function () {
+        const b = this; b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
+        const l = chatFrame.parentElement.querySelector(".loader"); if (l) l.style.display = "grid";
+        chatFrame.src = chatFrame.src;
+      });
+      $("#chatPop").addEventListener("click", () => {
+        window.open("https://chat.kick.cx/embed/aktor", "aktor-chat", "popup=yes,width=420,height=720");
+      });
+
+      btnReload.addEventListener("click", () => {
+        btnReload.classList.remove("spin"); void btnReload.offsetWidth; btnReload.classList.add("spin");
+        const l = stage.querySelector(".loader"); if (l) l.style.display = "grid";
+        playerFrame.src = playerFrame.src;
+      });
+
+      /* =========================================================
+         FULLSCREEN / THEATER (camera follows into fullscreen)
+         ========================================================= */
+      const fsIcon = btnFull.querySelector("i");
+      function syncFs() {
+        const fs = isFs();
+        // Only the fullscreen element is rendered, so move the camera inside it
+        if (fs === stage) { if (cam.parentElement !== stage) stage.appendChild(cam); closeMenu(); }
+        else if (cam.parentElement !== document.body) document.body.appendChild(cam);
+        const on = !!fs || document.body.classList.contains("theater");
+        fsIcon.className = on ? "fa-solid fa-compress" : "fa-solid fa-expand";
+        requestAnimationFrame(applyCam);
+      }
+      function toggleFs() {
+        if (document.body.classList.contains("theater")) { document.body.classList.remove("theater"); syncFs(); return; }
+        if (isFs()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+        const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+        if (req) {
+          const p = req.call(stage);
+          if (p && p.catch) p.catch(() => { document.body.classList.add("theater"); syncFs(); });
+        } else { document.body.classList.add("theater"); syncFs(); }
+      }
+      btnFull.addEventListener("click", toggleFs);
+      $("#btnTheaterExit").addEventListener("click", toggleFs);
+      document.addEventListener("fullscreenchange", syncFs);
+      document.addEventListener("webkitfullscreenchange", syncFs);
+
+      /* ---------- shortcuts ---------- */
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const k = e.key.toLowerCase();
+        if (k === "c") btnChat.click();
+        else if (k === "v") btnCam.click();
+        else if (k === "k") btnCamSet.click();
+        else if (k === "f") toggleFs();
+        else if (k === "escape") {
+          if (menu.classList.contains("open")) closeMenu();
+          else if (document.body.classList.contains("theater")) toggleFs();
+        }
+      });
+
+      (mq.addEventListener ? mq.addEventListener("change", applyCam) : mq.addListener(applyCam));
+    })();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08080b" />
+  <title>AKTOR • Stream</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --bg: #08080b;
+      --surface: #0f0f14;
+      --surface-2: #16161d;
+      --surface-3: #1e1e27;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text: #f4f4f7;
+      --muted: #9b9bab;
+      --accent: #53fc18;
+      --gold: #ffb52e;
       --pink: #ff4d88;
       --discord: #5865f2;
       --radius: 16px;
